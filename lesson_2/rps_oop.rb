@@ -7,13 +7,39 @@ class Player
   end
 end
 
+class Move
+  attr_accessor :current_move
+
+  AVAILABLE_MOVES = ["rock", "paper", "scissors"].freeze
+  WIN_COMBINATION = [["rock", "scissors"], ["scissors", "paper"],
+                        ["paper", "rock"]].freeze
+  LOSER_COMBINATION = [["scissors", "rock"], ["paper", "scissors"],
+                       ["rock", "paper"]].freeze
+
+  def initialize(player_choice)
+    @current_move = player_choice
+  end
+
+  def >(other_player)
+    WIN_COMBINATION.include?([current_move, other_player.current_move])
+  end
+
+  def <(other_player)
+    LOSER_COMBINATION.include?([current_move, other_player.current_move])
+  end
+
+  def to_s
+    @current_move
+  end
+end
+
 class Computer < Player
   def set_name
     @name = ["R2D2", "Hal", "Chappie", "Sonnie", "Number 5"].sample
   end
 
   def choose
-    self.move = ["rock", "paper", "scissors"].sample
+    self.move = Move.new(Move::AVAILABLE_MOVES.sample)
   end
 end
 
@@ -25,7 +51,7 @@ class Human < Player
   end
 
   def choose
-    self.move = ask_user_choice
+    self.move = Move.new(ask_user_choice)
   end
 
   def ask_user_choice
@@ -44,7 +70,7 @@ end
 class RoundsManager
   attr_accessor :human, :computer, :max_score, :cur_winner
 
-  WINNER_COMBINATION = [["rock", "scissors"], ["scissors", "paper"],
+  WIN_COMBINATION = [["rock", "scissors"], ["scissors", "paper"],
                         ["paper", "rock"]].freeze
 
   def initialize(max_score, human, computer)
@@ -54,12 +80,12 @@ class RoundsManager
   end
 
   def define_round_winner
-    @cur_winner = if WINNER_COMBINATION.include?([human.move, computer.move])
+    @cur_winner = if human.move > computer.move
                     :human
-                  elsif human.move == computer.move
-                    :tie
-                  else
+                  elsif human.move < computer.move
                     :computer
+                  else
+                    :tie
                   end
   end
 
