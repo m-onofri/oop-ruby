@@ -1,4 +1,32 @@
+module FormatInfo
+  def prompt(string)
+    puts "==> #{string}"
+  end
+
+  def check_yes_no_answer
+    loop do
+      answer = gets.chomp.downcase
+      case answer
+      when "y", "yes" then return true
+      when "n", "no" then return false
+      else prompt "Invalid answer; please enter yes or no"
+      end
+    end
+  end
+
+  def prompt_to_continue(request)
+    prompt request
+    gets.chomp
+    clear_screen
+  end
+
+  def clear_screen
+  system('clear') || system('cls')
+end
+end
+
 class Player
+  include FormatInfo
   attr_accessor :move, :score, :name
 
   def initialize
@@ -45,29 +73,32 @@ end
 
 class Human < Player
   def set_name
-    puts "Please enter your name"
+    prompt "Please enter your name"
     user_name = gets.chomp
     @name = user_name == "" ? "User" : user_name
+    clear_screen
   end
 
   def choose
     self.move = Move.new(ask_user_choice)
+    clear_screen
   end
 
   def ask_user_choice
     loop do
-      puts "Please choose one move: (r)ock, (p)aper or (s)cissors"
+      prompt "Please choose one move: (r)ock, (p)aper or (s)cissors"
       case gets.chomp.downcase
       when "r", "rock" then return "rock"
       when "p", "paper" then return "paper"
       when "s", "scissors" then return "scissors"
-      else puts "Sorry, invalid choice."
+      else prompt "Sorry, invalid choice."
       end
     end
   end
 end
 
 class RoundsManager
+  include FormatInfo
   attr_accessor :human, :computer, :max_score, :cur_winner
 
   WIN_COMBINATION = [["rock", "scissors"], ["scissors", "paper"],
@@ -100,23 +131,24 @@ class RoundsManager
     display_moves
     display_round_winner
     display_scores
+    prompt_to_continue("Press enter to play the next round!")
   end
 
   def display_moves
-    puts "#{human.name} chose #{human.move}"
-    puts "#{computer.name} chose #{computer.move}"
+    prompt "#{human.name} chose #{human.move}"
+    prompt "#{computer.name} chose #{computer.move}"
   end
 
   def display_round_winner
     case cur_winner
-    when :human then puts "#{human.name} won!"
-    when :tie then puts "It's a tie!"
-    when :computer then puts "#{computer.name} won!"
+    when :human then prompt "#{human.name} won!"
+    when :tie then prompt "It's a tie!"
+    when :computer then prompt "#{computer.name} won!"
     end
   end
 
   def display_scores
-    puts "#{human.name}: #{human.score} | #{computer.name}: #{computer.score}"
+    prompt "#{human.name}: #{human.score} | #{computer.name}: #{computer.score}"
   end
 
   def start
@@ -132,6 +164,7 @@ class RoundsManager
 end
 
 class RPSGame
+  include FormatInfo
   attr_accessor :human, :computer, :max_score
 
   def initialize
@@ -142,43 +175,38 @@ class RPSGame
   end
 
   def set_max_score
-    puts "Please set the score players have to reach to win the game:"
-    puts "(enter a positive number greater than 1)"
+    prompt "Please set the score players have to reach to win the game:"
+    prompt "(enter a positive number greater than 1)"
     answer = nil
     loop do
       answer = gets.chomp.to_i
       break if answer > 1
-      puts "Invalid input; please enter a positive number greater than 1."
+      prompt "Invalid input; please enter a positive number greater than 1."
     end
     @max_score = answer
+    clear_screen
   end
 
   def display_welcome_message
-    puts "Hello #{human.name}! Welcome to Rock, Paper and Scissors game!"
+    prompt "Hello #{human.name}! Welcome to Rock, Paper and Scissors game!"
+    prompt_to_continue("Press enter to start the game!")
   end
 
   def display_game_winner
     if human.score == max_score
-      puts "#{human.name} won the game!"
+      prompt "#{human.name} won the game!"
     elsif computer.score == max_score
-      puts "#{computer.name} won the game!"
+      prompt "#{computer.name} won the game!"
     end
   end
 
   def play_again?
-    puts "Would you like to play again?(y/n)"
-    loop do
-      answer = gets.chomp.downcase
-      case answer
-      when "y", "yes" then return true
-      when "n", "no" then return false
-      else puts "Invalid answer; please enter yes or no"
-      end
-    end
+    prompt "Would you like to play again?(y/n)"
+    check_yes_no_answer
   end
 
   def display_goodbye_message
-    puts "Goodbye #{human.name}! Thanks " \
+    prompt "Goodbye #{human.name}! Thanks " \
          "for playing Rock, Paper and Scissors game!"
   end
 
