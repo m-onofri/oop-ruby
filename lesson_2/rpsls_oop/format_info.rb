@@ -23,4 +23,8 @@ module FormatInfo
   def clear_screen
     system('clear') || system('cls')
   end
+
+  def separator(symbol = "=", width = 50)
+    puts symbol * width
+  end
 end

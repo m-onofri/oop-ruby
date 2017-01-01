@@ -16,13 +16,13 @@ class Computer < Player
   end
 
   def choose
-    self.move = Move.new(Move::AVAILABLE_MOVES.sample)
+    self.move = Move.new(Move::AVAILABLE_MOVES.keys.sample)
   end
 end
 
 class Human < Player
   def set_name
-    prompt "Please enter your name"
+    prompt "Please enter your name:"
     user_name = gets.chomp
     @name = user_name == "" ? "User" : user_name
     clear_screen
@@ -35,11 +35,14 @@ class Human < Player
 
   def ask_user_choice
     loop do
-      prompt "Please choose one move: (r)ock, (p)aper or (s)cissors"
+      prompt "Please choose one move: (r)ock, (p)aper, (s)cissors, " \
+             "(l)izard or spoc(k)"
       case gets.chomp.downcase
-      when "r", "rock" then return "rock"
-      when "p", "paper" then return "paper"
-      when "s", "scissors" then return "scissors"
+      when "r", "rock" then return "r"
+      when "p", "paper" then return "p"
+      when "s", "scissors" then return "s"
+      when "l", "lizard" then return "l"
+      when "k", "spock" then return "k"
       else prompt "Sorry, invalid choice."
       end
     end
