@@ -1,5 +1,5 @@
 load 'move.rb'
-
+ 
 class Player
   include FormatInfo
   attr_accessor :move, :score, :name

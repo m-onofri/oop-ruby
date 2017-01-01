@@ -1,5 +1,5 @@
 class Move
-  attr_accessor :current_move
+  attr_accessor :value
 
   AVAILABLE_MOVES = { "r" => "ROCK",
                       "p" => "PAPER",
@@ -18,20 +18,20 @@ class Move
                       "lp" => "Lizard eats Paper!" }.freeze
 
   def initialize(player_choice)
-    @current_move = player_choice
+    @value = player_choice
   end
 
   def >(other_player)
-    combination = current_move + other_player.current_move
+    combination = value + other_player.value
     WIN_COMBINATION.keys.include?(combination)
   end
 
   def <(other_player)
-    combination = other_player.current_move + current_move
+    combination = other_player.value + value
     WIN_COMBINATION.keys.include?(combination)
   end
 
   def to_s
-    AVAILABLE_MOVES[@current_move]
+    AVAILABLE_MOVES[@value]
   end
 end

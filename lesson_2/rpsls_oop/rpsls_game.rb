@@ -1,16 +1,37 @@
 load 'format_info.rb'
 load 'player.rb'
+load 'history.rb'
 
 class RoundsManager
   include FormatInfo
   attr_accessor :human, :computer, :max_score, :cur_winner,
-                :win_comb
+                :win_comb, :history
 
   def initialize(max_score, human, computer)
     @max_score = max_score
     @human = human
     @computer = computer
+    @history = History.new
   end
+
+  def start
+    loop do
+      human.choose
+      computer.choose
+      define_round_winner
+      set_round_score
+      display_round_result
+      archive_info
+      break if human.score == max_score || computer.score == max_score
+    end
+  end
+
+  def display_scores
+    display_players_data("Score (max points = #{max_score})",
+                         human.score, computer.score)
+  end
+
+  private
 
   def display_players_data(title, user, comp)
     puts
@@ -20,11 +41,15 @@ class RoundsManager
     puts
   end
 
+  def set_win_comb
+    @win_comb = human.move.value + computer.move.value
+  end
+
   def define_round_winner
     @cur_winner = if human.move > computer.move
-                    :human
+                    :hum
                   elsif human.move < computer.move
-                    :computer
+                    :com
                   else
                     :tie
                   end
@@ -32,8 +57,8 @@ class RoundsManager
 
   def set_round_score
     case cur_winner
-    when :human then human.score += 1
-    when :computer then computer.score += 1
+    when :hum then human.score += 1
+    when :com then computer.score += 1
     end
   end
 
@@ -48,36 +73,21 @@ class RoundsManager
     display_players_data("Moves", human.move, computer.move)
   end
 
-  def set_win_comb
-    @win_comb = human.move.current_move + computer.move.current_move
-  end
-
   def display_round_winner
     set_win_comb
     case cur_winner
-    when :human
+    when :hum
       puts Move::WIN_COMBINATION[win_comb] + "#{human.name} won!"
     when :tie then puts "It's a tie!"
-    when :computer
+    when :com
       puts Move::WIN_COMBINATION[win_comb.reverse] + "#{computer.name} won!"
     end
   end
 
-  def display_scores
-    display_players_data("Score (max points = #{max_score})",
-                         human.score, computer.score)
+  def archive_info
+    history.push_values(human.move.to_s, computer.move.to_s, cur_winner)
   end
 
-  def start
-    loop do
-      human.choose
-      computer.choose
-      define_round_winner
-      set_round_score
-      display_round_result
-      break if human.score == max_score || computer.score == max_score
-    end
-  end
 end
 
 class RPSGame
@@ -91,6 +101,19 @@ class RPSGame
     set_max_score
     @rounds = RoundsManager.new(@max_score, @human, @computer)
   end
+
+  def play
+    display_welcome_message
+    loop do
+      @rounds.start
+      display_game_winner
+      break unless play_again?
+    end
+    display_goodbye_message
+    display_history
+  end
+
+  private
 
   def game_presentation
     clear_screen
@@ -154,15 +177,10 @@ class RPSGame
          "for playing Rock, Paper, Scissors, Lizard and Spock game!"
   end
 
-  def play
-    display_welcome_message
-    loop do
-      @rounds.start
-      display_game_winner
-      break unless play_again?
-    end
-    display_goodbye_message
+  def display_history
+    rounds.history.display_moves(human.name, computer.name)
   end
+
 end
 
 RPSGame.new.play
