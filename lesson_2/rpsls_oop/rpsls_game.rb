@@ -47,9 +47,9 @@ class RoundsManager
 
   def define_round_winner
     @cur_winner = if human.move > computer.move
-                    :hum
+                    :human
                   elsif human.move < computer.move
-                    :com
+                    :computer
                   else
                     :tie
                   end
@@ -57,8 +57,8 @@ class RoundsManager
 
   def set_round_score
     case cur_winner
-    when :hum then human.score += 1
-    when :com then computer.score += 1
+    when :human then human.score += 1
+    when :computer then computer.score += 1
     end
   end
 
@@ -76,10 +76,10 @@ class RoundsManager
   def display_round_winner
     set_win_comb
     case cur_winner
-    when :hum
+    when :human
       puts Move::WIN_COMBINATION[win_comb] + "#{human.name} won!"
     when :tie then puts "It's a tie!"
-    when :com
+    when :computer
       puts Move::WIN_COMBINATION[win_comb.reverse] + "#{computer.name} won!"
     end
   end

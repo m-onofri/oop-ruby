@@ -1,26 +1,39 @@
 class History
-  attr_accessor :moves_list
+  attr_accessor :list
 
   def initialize
-    @moves_list = { human: [],
+    @list = { human: [],
                     computer: [],
                     winner: []}
   end
 
   def push_values(human_move, computer_move, winner)
-    moves_list[:human] << human_move
-    moves_list[:computer] << computer_move
-    moves_list[:winner] << winner
+    list[:human] << human_move
+    list[:computer] << computer_move
+    list[:winner] << winner
+  end
+
+  def change_winners_array(human_name, computer_name)
+    winners = list[:winner].map do |winner|
+                case winner
+                when :human then human_name
+                when :computer then computer_name
+                when :tie then "tie"
+                end 
+              end
   end
 
   def display_moves(human_name, computer_name)
-    rounds = moves_list[:winner].size
-    puts "MOVES LIST".center(50)
-    puts "ROUND   #{human_name}".ljust(25) + 
-         "#{computer_name}      WINNER".rjust(25)
-    (0...rounds).each do |index|
-      puts "  #{index + 1}       #{moves_list[:human][index]}".ljust(25) +
-           "#{moves_list[:computer][index]}        #{moves_list[:winner][index]}".rjust(25)        
+    winners = change_winners_array(human_name, computer_name)
+    puts "MOVES LIST".center(60)
+    puts "ROUND".ljust(15) +"#{human_name}".ljust(15) + 
+         "#{computer_name}".ljust(15) + "WINNER".ljust(15)
+    puts ""
+    (0...list[:human].size).each do |index|
+      puts "  #{index + 1}".ljust(15) +
+           "#{list[:human][index]}".ljust(15) +
+           "#{list[:computer][index]}".ljust(15) + 
+           "#{winners[index]}".ljust(15)        
     end
   end
 
