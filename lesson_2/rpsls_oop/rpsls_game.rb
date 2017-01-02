@@ -105,15 +105,28 @@ class RPSGame
   def play
     display_welcome_message
     loop do
+      set_up_game
       @rounds.start
       display_game_winner
       break unless play_again?
     end
+    set_up_game  # da sistemare!!!
     display_goodbye_message
     display_history
   end
 
   private
+
+  def set_up_game
+    unless human.score == 0 && computer.score == 0
+      human.score = 0
+      computer.score = 0
+    end
+    unless rounds.history.list[:winner].empty?
+      rounds.history.archive_matches
+      rounds.history.reset_list
+    end
+  end
 
   def game_presentation
     clear_screen
@@ -155,6 +168,7 @@ class RPSGame
   def display_welcome_message
     prompt "Hello #{human.name}! Welcome to Rock, Paper, Scissors, Lizard " \
            "and Spock game!"
+    prompt "Your opponent will be #{computer.name}"
     prompt_to_continue("When you are ready, press enter to start the game!")
   end
 
@@ -178,7 +192,7 @@ class RPSGame
   end
 
   def display_history
-    rounds.history.display_moves(human.name, computer.name)
+    rounds.history.display_full_game(human.name, computer.name)
   end
 
 end
