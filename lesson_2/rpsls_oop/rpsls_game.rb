@@ -1,7 +1,7 @@
 load 'format_info.rb'
 load 'player.rb'
 load 'history.rb'
-
+ 
 class RoundsManager
   include FormatInfo
   attr_accessor :human, :computer, :max_score, :cur_winner,
@@ -105,23 +105,31 @@ class RPSGame
   def play
     display_welcome_message
     loop do
-      set_up_game
+      reset_game
       @rounds.start
       display_game_winner
       break unless play_again?
     end
-    set_up_game  # da sistemare!!!
+    reset_history
     display_goodbye_message
     display_history
   end
 
   private
 
-  def set_up_game
+  def reset_game
+    reset_scores
+    reset_history
+  end
+
+  def reset_scores
     unless human.score == 0 && computer.score == 0
       human.score = 0
       computer.score = 0
     end
+  end
+
+  def reset_history
     unless rounds.history.list[:winner].empty?
       rounds.history.archive_matches
       rounds.history.reset_list

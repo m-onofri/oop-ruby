@@ -1,6 +1,6 @@
 class History
   attr_accessor :list, :matches
-
+ 
   def initialize
     @matches = []
     @list = { human: [],
@@ -56,5 +56,32 @@ class History
     end
   end
 
+  def select_players_moves
+    result = { computer: [], human: [] }
+    matches.each do |match|
+      match[:winner].each_with_index do |round_winner, index|
+        if round_winner == :human
+          result[:computer] << [match[:computer][index], "loss"]
+          result[:human] << [match[:human][index], "win"]
+        elsif round_winner == :computer
+          result[:computer] << [match[:computer][index], "win"]
+          result[:human] << [match[:human][index], "loss"]
+        end
+      end
+    end
+    result
+  end
+
+# status can be "win" or "loss"
+  def computer_loss_moves_frequencies(status)
+    computer_moves = select_players_moves[:computer]
+    moves_count = computer_moves.reduce(Hash.new(0)) do |hash, move|
+      if move[1] == status
+        hash[move[0]] += 1
+      end
+      hash
+    end
+    moves_count.each { |key, value| moves_count[key] = (value.to_f / computer_moves.size).round(2) }
+  end
 
 end
