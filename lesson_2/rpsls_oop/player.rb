@@ -1,5 +1,5 @@
 load 'move.rb'
- 
+  
 class Player
   include FormatInfo
   attr_accessor :move, :score, :name
@@ -7,16 +7,6 @@ class Player
   def initialize
     @score = 0
     set_name
-  end
-end
-
-class Computer < Player
-  def set_name
-    @name = ["R2D2", "Hal", "Chappie", "Sonnie", "Number 5"].sample
-  end
-
-  def choose
-    self.move = Move.new(Move::AVAILABLE_MOVES.keys.sample)
   end
 end
 
@@ -48,3 +38,38 @@ class Human < Player
     end
   end
 end
+
+class Computer < Player
+  def set_name
+    @name = ["R2D2", "Hal", "Chappie", "Sonnie", "Number 5"].sample
+  end
+
+  def choose
+    self.move = Move.new(Move::AVAILABLE_MOVES.keys.sample)
+  end
+end
+
+class R2D2 < Computer
+
+end
+
+class Hal < Computer
+
+end
+
+class Chappie < Computer
+
+end
+
+class Sonnie < Computer
+
+end
+
+class Number5 < Computer
+
+end
+
+
+
+
+
