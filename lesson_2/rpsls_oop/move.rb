@@ -1,6 +1,6 @@
 class Move
   attr_accessor :value
-
+ 
   AVAILABLE_MOVES = { "r" => "ROCK",
                       "p" => "PAPER",
                       "s" => "SCISSORS",

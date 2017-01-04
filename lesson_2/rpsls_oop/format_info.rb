@@ -2,7 +2,7 @@ module FormatInfo
   def prompt(string)
     puts "==> #{string}"
   end
- 
+  
   def check_yes_no_answer
     loop do
       answer = gets.chomp.downcase

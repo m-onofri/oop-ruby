@@ -7,11 +7,11 @@ class RoundsManager
   attr_accessor :human, :computer, :max_score, :cur_winner,
                 :win_comb, :history
 
-  def initialize(max_score, human, computer)
-    @max_score = max_score
-    @human = human
-    @computer = computer
+  def initialize
     @history = History.new
+    @human = Human.new
+    @computer = select_computer_player
+    set_max_score
   end
 
   def start
@@ -32,6 +32,28 @@ class RoundsManager
   end
 
   private
+  def set_max_score
+    prompt "Please set the score players have to reach to win the game:"
+    prompt "(enter a positive number greater than 1)"
+    answer = nil
+    loop do
+      answer = gets.chomp.to_i
+      break if answer > 1
+      prompt "Invalid input; please enter a positive number greater than 1."
+    end
+    @max_score = answer
+    clear_screen
+  end
+
+  def select_computer_player
+    case (1..5).to_a.sample
+      when 1 then return R2D2.new(history)
+      when 2 then return Hal.new(history)
+      when 3 then return Chappie.new(history)
+      when 4 then return Sonnie.new(history)
+      when 5 then return Number5.new(history)
+      end
+  end
 
   def display_players_data(title, user, comp)
     puts
@@ -92,27 +114,24 @@ end
 
 class RPSGame
   include FormatInfo
-  attr_accessor :human, :computer, :max_score, :rounds
+  attr_accessor :game
 
   def initialize
     game_presentation
-    @human = Human.new
-    @computer = Computer.new
-    set_max_score
-    @rounds = RoundsManager.new(@max_score, @human, @computer)
+    @game = RoundsManager.new
   end
 
   def play
     display_welcome_message
     loop do
       reset_game
-      @rounds.start
+      @game.start
       display_game_winner
       break unless play_again?
     end
     reset_history
-    display_goodbye_message
     display_history
+    display_goodbye_message
   end
 
   private
@@ -123,16 +142,16 @@ class RPSGame
   end
 
   def reset_scores
-    unless human.score == 0 && computer.score == 0
-      human.score = 0
-      computer.score = 0
+    unless game.human.score == 0 && game.computer.score == 0
+      game.human.score = 0
+      game.computer.score = 0
     end
   end
 
   def reset_history
-    unless rounds.history.list[:winner].empty?
-      rounds.history.archive_matches
-      rounds.history.reset_list
+    unless game.history.list[:winner].empty?
+      game.history.archive_matches
+      game.history.reset_list
     end
   end
 
@@ -160,33 +179,20 @@ class RPSGame
     prompt_to_continue("Press enter to set up the game.")
   end
 
-  def set_max_score
-    prompt "Please set the score players have to reach to win the game:"
-    prompt "(enter a positive number greater than 1)"
-    answer = nil
-    loop do
-      answer = gets.chomp.to_i
-      break if answer > 1
-      prompt "Invalid input; please enter a positive number greater than 1."
-    end
-    @max_score = answer
-    clear_screen
-  end
-
   def display_welcome_message
-    prompt "Hello #{human.name}! Welcome to Rock, Paper, Scissors, Lizard " \
+    prompt "Hello #{game.human.name}! Welcome to Rock, Paper, Scissors, Lizard " \
            "and Spock game!"
-    prompt "Your opponent will be #{computer.name}"
+    prompt "Your opponent will be #{game.computer.name}"
     prompt_to_continue("When you are ready, press enter to start the game!")
   end
 
   def display_game_winner
-    if human.score == max_score
-      prompt "#{human.name} won the game!"
-    elsif computer.score == max_score
-      prompt "#{computer.name} won the game!"
+    if game.human.score == game.max_score
+      prompt "#{game.human.name} won the game!"
+    elsif game.computer.score == game.max_score
+      prompt "#{game.computer.name} won the game!"
     end
-    rounds.display_scores
+    game.display_scores
   end
 
   def play_again?
@@ -195,12 +201,12 @@ class RPSGame
   end
 
   def display_goodbye_message
-    prompt "Goodbye #{human.name}! Thanks " \
+    prompt "Goodbye #{game.human.name}! Thanks " \
          "for playing Rock, Paper, Scissors, Lizard and Spock game!"
   end
 
   def display_history
-    rounds.history.display_full_game(human.name, computer.name)
+    game.history.display_full_game(game.human.name, game.computer.name)
   end
 
 end
