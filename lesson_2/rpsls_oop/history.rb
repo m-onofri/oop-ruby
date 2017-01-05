@@ -2,10 +2,10 @@ class History
   attr_accessor :list, :matches
  
   def initialize
-    @matches = []
-    @list = { human: [],
-              computer: [],
-              winner: []}
+    @matches = [{ human: [],
+                  computer: [],
+                  winner: []}]
+    @list = @matches.last
   end
 
   def push_values(human_move, computer_move, winner)
@@ -15,13 +15,13 @@ class History
   end
 
   def archive_matches
-    matches << list
+    matches << { human: [],
+                 computer: [],
+                 winner: []}
   end
 
   def reset_list
-    @list = { human: [],
-              computer: [],
-              winner: []}
+    @list = @matches.last
   end
 
   def display_full_game(human_name, computer_name)
@@ -35,7 +35,7 @@ class History
   end
 
   # status can be "win" or "loss"
-  def computer_loss_moves_frequencies(status)
+  def computer_moves_frequencies(status)
     computer_moves = select_players_moves[:computer]
     moves_count = computer_moves.reduce(Hash.new(0)) do |hash, move|
       if move[1] == status

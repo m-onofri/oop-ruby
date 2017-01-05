@@ -40,6 +40,7 @@ class Human < Player
 end
 
 class Computer < Player
+  attr_accessor :history
 
   def initialize(history)
     @history = history
@@ -50,7 +51,7 @@ class Computer < Player
     @name = "Computer"
   end
 
-  def choose(_history)
+  def choose
     self.move = Move.new(Move::AVAILABLE_MOVES.keys.sample)
   end
 
@@ -66,7 +67,7 @@ class R2D2 < Computer
     @name = "R2D2"
   end
 
-  def choose(_history)
+  def choose
     self.move = Move.new(Move::AVAILABLE_MOVES.keys[0..2].sample)
   end
 end
@@ -75,6 +76,10 @@ class Hal < Computer
   def set_name
     @name = "Hal"
   end
+
+  # def choose(history)
+  #   if history.
+  # end
 end
 
 class Chappie < Computer
@@ -84,7 +89,7 @@ class Chappie < Computer
 end
 
 class Sonnie < Computer
-  def initialize
+  def initialize(_history)
     set_name
     @freq = {"p"=>0.05, "s"=>0.05, "l"=>0.05, "k"=>0.05, "r"=>0.8}
   end
@@ -93,7 +98,7 @@ class Sonnie < Computer
     @name = "Sonnie"
   end
 
-  def choose(_history)
+  def choose
     self.move = Move.new(self.weighted_sample)
   end
 

@@ -129,7 +129,6 @@ class RPSGame
       display_game_winner
       break unless play_again?
     end
-    reset_history
     display_history
     display_goodbye_message
   end
