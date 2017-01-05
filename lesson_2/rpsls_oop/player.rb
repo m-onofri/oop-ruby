@@ -77,9 +77,27 @@ class Hal < Computer
     @name = "Hal"
   end
 
-  # def choose(history)
-  #   if history.
-  # end
+  def choose
+    comp_moves = history.player_moves_number
+    loss_moves_freq = history.computer_moves_frequencies("loss")
+    if comp_moves >= 10
+      loss_move = loss_moves_freq.max_by {|_, freq| freq }
+      if loss_move[1] > 0.2
+        self.move = self.remove_loss_move(loss_move[0])
+      else
+        self.move = Move.new(Move::AVAILABLE_MOVES.keys.sample)
+      end
+    else
+      self.move = Move.new(Move::AVAILABLE_MOVES.keys.sample)
+    end
+  end
+
+  def remove_loss_move(loss_move)
+      moves_array = Move::AVAILABLE_MOVES.keys.reject do |move| 
+        move == Move::AVAILABLE_MOVES.key(loss_move)
+      end
+      Move.new(moves_array.sample)
+  end
 end
 
 class Chappie < Computer

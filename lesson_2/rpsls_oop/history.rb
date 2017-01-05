@@ -37,13 +37,18 @@ class History
   # status can be "win" or "loss"
   def computer_moves_frequencies(status)
     computer_moves = select_players_moves[:computer]
+    status_number = computer_moves.select { |move| move[1] == status }.size
     moves_count = computer_moves.reduce(Hash.new(0)) do |hash, move|
       if move[1] == status
         hash[move[0]] += 1
       end
       hash
     end
-    moves_count.each { |key, value| moves_count[key] = (value.to_f / computer_moves.size).round(2) }
+    moves_count.each { |key, value| moves_count[key] = (value.to_f / status_number).round(2) }
+  end
+
+  def player_moves_number
+    select_players_moves[:computer].size
   end
 
   private
