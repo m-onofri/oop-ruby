@@ -1,4 +1,4 @@
-class History
+ class History
   attr_accessor :list, :matches
  
   def initialize
@@ -49,6 +49,18 @@ class History
 
   def player_moves_number
     select_players_moves[:computer].size
+  end
+
+  def moves_efficiency
+    computer_moves = select_players_moves[:computer]
+    result = {"ROCK"=>0, "PAPER"=>0, "SCISSORS"=>0, "LIZARD"=>0, "SPOCK"=>0}
+    computer_moves.each do |move, status|
+      case status
+      when "win" then result[move] += 1
+      when "loss" then result[move] -= 1
+      end
+    end
+    result.max_by(result.size) {|_, value| value }
   end
 
   private

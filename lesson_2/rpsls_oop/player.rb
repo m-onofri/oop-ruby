@@ -60,6 +60,13 @@ class Computer < Player
   def weighted_sample
     @freq.max_by { |_, weight| rand ** (1.0 / weight) }.first
   end
+
+  def remove_loss_move(loss_move)
+      moves_array = Move::AVAILABLE_MOVES.keys.reject do |move| 
+        move == Move::AVAILABLE_MOVES.key(loss_move)
+      end
+      Move.new(moves_array.sample)
+  end
 end
 
 class R2D2 < Computer
@@ -91,18 +98,36 @@ class Hal < Computer
       self.move = Move.new(Move::AVAILABLE_MOVES.keys.sample)
     end
   end
-
-  def remove_loss_move(loss_move)
-      moves_array = Move::AVAILABLE_MOVES.keys.reject do |move| 
-        move == Move::AVAILABLE_MOVES.key(loss_move)
-      end
-      Move.new(moves_array.sample)
-  end
 end
 
 class Chappie < Computer
+  def initialize(history)
+    set_name
+    @history = history
+    @freq = {"p"=>0.2, "s"=>0.2, "l"=>0.2, "k"=>0.2, "r"=>0.2}
+  end
+
   def set_name
     @name = "Chappie"
+  end
+
+  def choose
+    comp_moves = history.player_moves_number
+    if comp_moves % 5 == 0 && comp_moves > 9
+      efficiency = history.moves_efficiency
+      most_efficient_move = Move::AVAILABLE_MOVES.key(efficiency.first[0])
+      less_efficient_move = Move::AVAILABLE_MOVES.key(efficiency.last[0])
+      @freq.each do |move, _|
+        if move == most_efficient_move
+          @freq[move] = 0.50
+        elsif move == less_efficient_move
+          @freq[move] = 0.05
+        else
+          @freq[move] = 0.15
+        end
+      end
+    end
+      self.move = Move.new(self.weighted_sample)
   end
 end
 

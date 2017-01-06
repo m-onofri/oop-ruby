@@ -136,6 +136,7 @@ class RPSGame
   private
 
   def reset_game
+    clear_screen
     reset_scores
     reset_history
   end
