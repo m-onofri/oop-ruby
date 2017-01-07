@@ -1,4 +1,8 @@
- class History
+load 'format_info.rb'
+
+class History
+  include FormatInfo
+
   attr_accessor :list, :matches
  
   def initialize
@@ -27,10 +31,12 @@
   def display_full_game(human_name, computer_name)
     puts "MOVES LIST".center(60)
     puts "ROUND".ljust(15) +"#{human_name}".ljust(15) + 
-         "#{computer_name}".ljust(15) + "WINNER".ljust(15)
+         "#{computer_name}".ljust(15) + "ROUND WINNER".ljust(15)
+    separator(60)
     (0...matches.size).each do |n_match|
       puts "MATCH #{n_match + 1}".center(60)
       display_rounds(human_name, computer_name, matches[n_match])
+      separator(60, "-")
     end
   end
 
@@ -38,13 +44,16 @@
   def computer_moves_frequencies(status)
     computer_moves = select_players_moves[:computer]
     status_number = computer_moves.select { |move| move[1] == status }.size
-    moves_count = computer_moves.reduce(Hash.new(0)) do |hash, move|
-      if move[1] == status
-        hash[move[0]] += 1
-      end
+    result = {"ROCK"=>0, "PAPER"=>0, "SCISSORS"=>0, "LIZARD"=>0, "SPOCK"=>0}
+    moves_count = computer_moves.reduce(result) do |hash, move|
+      hash[move[0]] += 1 if move[1] == status
       hash
     end
-    moves_count.each { |key, value| moves_count[key] = (value.to_f / status_number).round(2) }
+    moves_count.each do |key, value|
+      unless status_number == 0
+        moves_count[key] = (value.to_f / status_number).round(2)
+      end
+    end
   end
 
   def player_moves_number

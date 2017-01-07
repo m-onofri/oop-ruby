@@ -24,7 +24,7 @@ module FormatInfo
     system('clear') || system('cls')
   end
 
-  def separator(symbol = "=", width = 50)
+  def separator(width = 50, symbol = "=" )
     puts symbol * width
   end
 end

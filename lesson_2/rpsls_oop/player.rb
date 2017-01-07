@@ -12,9 +12,13 @@ end
 
 class Human < Player
   def set_name
-    prompt "Please enter your name:"
-    user_name = gets.chomp
-    @name = user_name == "" ? "User" : user_name
+    user_name = nil
+    loop do
+      prompt "Please enter your name (only alphanumerical characters are permitted):"
+      user_name = gets.chomp
+      break if user_name =~ /^[A-Za-z0-9]+$/
+    end
+    @name = user_name
     clear_screen
   end
 
@@ -25,8 +29,7 @@ class Human < Player
 
   def ask_user_choice
     loop do
-      prompt "Please choose one move: (r)ock, (p)aper, (s)cissors, " \
-             "(l)izard or spoc(k)"
+      choice_request
       case gets.chomp.downcase
       when "r", "rock" then return "r"
       when "p", "paper" then return "p"
@@ -37,14 +40,27 @@ class Human < Player
       end
     end
   end
+
+  def choice_request
+    puts <<-EOF
+     Please choose one move:
+
+     - (r)ock
+     - (p)aper
+     - (s)cissors
+     - (l)izard
+     - spoc(k)
+    EOF
+  end
 end
 
 class Computer < Player
-  attr_accessor :history
+  attr_accessor :history, :freq
 
   def initialize(history)
     @history = history
     set_name
+    @freq = { "p"=>0.2, "s"=>0.2, "l"=>0.2, "k"=>0.2, "r"=>0.2 }
   end
 
   def set_name
@@ -55,10 +71,10 @@ class Computer < Player
     self.move = Move.new(Move::AVAILABLE_MOVES.keys.sample)
   end
 
-  protected
+  private
 
   def weighted_sample
-    @freq.max_by { |_, weight| rand ** (1.0 / weight) }.first
+    freq.max_by { |_, weight| rand ** (1.0 / weight) }.first
   end
 
   def remove_loss_move(loss_move)
@@ -87,13 +103,9 @@ class Hal < Computer
   def choose
     comp_moves = history.player_moves_number
     loss_moves_freq = history.computer_moves_frequencies("loss")
-    if comp_moves >= 10
-      loss_move = loss_moves_freq.max_by {|_, freq| freq }
-      if loss_move[1] > 0.2
-        self.move = self.remove_loss_move(loss_move[0])
-      else
-        self.move = Move.new(Move::AVAILABLE_MOVES.keys.sample)
-      end
+    loss_move = loss_moves_freq.max_by { |_, freq| freq }
+    if comp_moves >= 5 && loss_move[1] > 0.2
+      self.move = remove_loss_move(loss_move[0])
     else
       self.move = Move.new(Move::AVAILABLE_MOVES.keys.sample)
     end
@@ -101,48 +113,36 @@ class Hal < Computer
 end
 
 class Chappie < Computer
-  def initialize(history)
-    set_name
-    @history = history
-    @freq = {"p"=>0.2, "s"=>0.2, "l"=>0.2, "k"=>0.2, "r"=>0.2}
-  end
-
   def set_name
     @name = "Chappie"
   end
 
   def choose
     comp_moves = history.player_moves_number
-    if comp_moves % 5 == 0 && comp_moves > 9
+    if comp_moves % 5 == 0 && comp_moves % 2 == 1 && comp_moves > 1
       efficiency = history.moves_efficiency
       most_efficient_move = Move::AVAILABLE_MOVES.key(efficiency.first[0])
-      less_efficient_move = Move::AVAILABLE_MOVES.key(efficiency.last[0])
+      #less_efficient_move = Move::AVAILABLE_MOVES.key(efficiency.last[0])
       @freq.each do |move, _|
         if move == most_efficient_move
-          @freq[move] = 0.50
-        elsif move == less_efficient_move
-          @freq[move] = 0.05
+          @freq[move] = 0.60
         else
-          @freq[move] = 0.15
+          @freq[move] = 0.10
         end
       end
     end
-      self.move = Move.new(self.weighted_sample)
+      self.move = Move.new(weighted_sample)
   end
 end
 
 class Sonnie < Computer
-  def initialize(_history)
-    set_name
-    @freq = {"p"=>0.05, "s"=>0.05, "l"=>0.05, "k"=>0.05, "r"=>0.8}
-  end
-
   def set_name
     @name = "Sonnie"
   end
 
   def choose
-    self.move = Move.new(self.weighted_sample)
+    @freq = {"p"=>0.05, "s"=>0.05, "l"=>0.05, "k"=>0.05, "r"=>0.8}
+    self.move = Move.new(weighted_sample)
   end
 
 end

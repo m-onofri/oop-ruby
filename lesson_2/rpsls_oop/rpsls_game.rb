@@ -33,11 +33,12 @@ class RoundsManager
 
   private
   def set_max_score
-    prompt "Please set the score players have to reach to win the game:"
-    prompt "(enter a positive number greater than 1)"
+    prompt "Please set the score that players have to reach to win the game:"
+    prompt "(by default this value is set to 10)"
     answer = nil
     loop do
-      answer = gets.chomp.to_i
+      user_input = gets.chomp
+      answer = user_input == "" ? 10 : user_input.to_i
       break if answer > 1
       prompt "Invalid input; please enter a positive number greater than 1."
     end
@@ -57,9 +58,10 @@ class RoundsManager
 
   def display_players_data(title, user, comp)
     puts
-    puts title.center(30)
-    puts "#{human.name}:".ljust(15) + " #{user}".rjust(15)
-    puts "#{computer.name}:".ljust(15) + " #{comp}".rjust(15)
+    puts title.center(40)
+    separator(40)
+    puts "#{human.name}:".ljust(20) + " #{user}".rjust(20)
+    puts "#{computer.name}:".ljust(20) + " #{comp}".rjust(20)
     puts
   end
 
@@ -99,10 +101,10 @@ class RoundsManager
     set_win_comb
     case cur_winner
     when :human
-      puts Move::WIN_COMBINATION[win_comb] + "#{human.name} won!"
-    when :tie then puts "It's a tie!"
+      puts (Move::WIN_COMBINATION[win_comb] + " #{human.name} won!").upcase.center(40)
+    when :tie then puts "IT'S A TIE!".center(40)
     when :computer
-      puts Move::WIN_COMBINATION[win_comb.reverse] + "#{computer.name} won!"
+      puts (Move::WIN_COMBINATION[win_comb.reverse] + " #{computer.name} won!").upcase.center(40)
     end
   end
 
@@ -122,7 +124,7 @@ class RPSGame
   end
 
   def play
-    display_welcome_message
+    display_opponent
     loop do
       reset_game
       @game.start
@@ -158,6 +160,7 @@ class RPSGame
   def game_presentation
     clear_screen
     puts <<-EOF
+     Welcome to Rock, Paper, Scissors, Lizard and Spock game!"
      This is a variation of the classic game "Rock-Paper-Scissors",
      with the addition of two other choices: "Spock" and "Lizard".
      Here the rules of the game:
@@ -174,15 +177,13 @@ class RPSGame
      - Lizard eats Paper
 
      Before starting to play, you must enter your name and the number
-     of points player have to reach to win the game.
+     of points one player have to reach to win the game.
     EOF
     prompt_to_continue("Press enter to set up the game.")
   end
 
-  def display_welcome_message
-    prompt "Hello #{game.human.name}! Welcome to Rock, Paper, Scissors, Lizard " \
-           "and Spock game!"
-    prompt "Your opponent will be #{game.computer.name}"
+  def display_opponent
+    prompt "Hello #{game.human.name}! Your opponent will be #{game.computer.name}."
     prompt_to_continue("When you are ready, press enter to start the game!")
   end
 
@@ -201,6 +202,7 @@ class RPSGame
   end
 
   def display_goodbye_message
+    puts ""
     prompt "Goodbye #{game.human.name}! Thanks " \
          "for playing Rock, Paper, Scissors, Lizard and Spock game!"
   end
