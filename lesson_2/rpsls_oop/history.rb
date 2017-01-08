@@ -1,5 +1,3 @@
-load 'format_info.rb'
-
 class History
   include FormatInfo
 

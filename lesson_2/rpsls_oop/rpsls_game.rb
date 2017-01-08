@@ -1,7 +1,3 @@
-load 'format_info.rb'
-load 'player.rb'
-load 'history.rb'
- 
 class RoundsManager
   include FormatInfo
   attr_accessor :human, :computer, :max_score, :cur_winner,
@@ -213,4 +209,4 @@ class RPSGame
 
 end
 
-RPSGame.new.play
+#RPSGame.new.play
