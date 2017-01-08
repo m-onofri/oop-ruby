@@ -1,5 +1,5 @@
 class Move
-  attr_accessor :value
+  attr_reader :value
  
   AVAILABLE_MOVES = { "r" => "ROCK",
                       "p" => "PAPER",
