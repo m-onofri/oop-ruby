@@ -59,7 +59,7 @@ class History
 
   def count_moves(player_moves, status)
     result = { "ROCK"=>0, "PAPER"=>0, "SCISSORS"=>0, "LIZARD"=>0, "SPOCK"=>0 }
-    computer_moves.reduce(result) do |hash, move|
+    player_moves.reduce(result) do |hash, move|
       hash[move[0]] += 1 if move[1] == status
       hash
     end
