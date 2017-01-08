@@ -25,6 +25,8 @@ class Human < Player
     clear_screen
   end
 
+  private
+
   def ask_user_choice
     loop do
       choice_request
@@ -59,10 +61,6 @@ class Computer < Player
     @history = history
     set_name
     @freq = { "p"=>0.2, "s"=>0.2, "l"=>0.2, "k"=>0.2, "r"=>0.2 }
-  end
-
-  def set_name
-    @name = "Computer"
   end
 
   def choose
