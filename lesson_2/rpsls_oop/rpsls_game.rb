@@ -27,7 +27,16 @@ class RoundsManager
                          human.score, computer.score)
   end
 
+  def define_game_winner
+    if human.score == max_score
+      human.name
+    elsif computer.score == max_score
+      computer.name
+    end
+  end
+
   private
+
   def set_max_score
     prompt "Please set the score that players have to reach to win the game:"
     prompt "(by default this value is set to 10)"
@@ -43,13 +52,13 @@ class RoundsManager
   end
 
   def select_computer_player
-    case [(1..5).to_a].sample
-      when 1 then return R2D2.new(history)
-      when 2 then return Hal.new(history)
-      when 3 then return Chappie.new(history)
-      when 4 then return Sonnie.new(history)
-      when 5 then return Number5.new(history)
-      end
+    case (1..5).to_a.sample
+    when 1 then R2D2.new(history)
+    when 2 then Hal.new(history)
+    when 3 then Chappie.new(history)
+    when 4 then Sonnie.new(history)
+    when 5 then Number5.new(history)
+    end
   end
 
   def display_players_data(title, user, comp)
@@ -96,18 +105,26 @@ class RoundsManager
   def display_round_winner
     set_win_comb
     case cur_winner
-    when :human
-      puts (Move::WIN_COMBINATION[win_comb] + " #{human.name} won!").upcase.center(40)
+    when :human then human_win_sentence
     when :tie then puts "IT'S A TIE!".center(40)
-    when :computer
-      puts (Move::WIN_COMBINATION[win_comb.reverse] + " #{computer.name} won!").upcase.center(40)
+    when :computer then computer_win_sentence
     end
+  end
+
+  def human_win_sentence
+    sentence = Move::WIN_COMBINATION[win_comb] + " #{human.name} won!"
+    puts sentence.upcase.center(40)
+  end
+
+  def computer_win_sentence
+    sentence = Move::WIN_COMBINATION[win_comb.reverse] +
+               " #{computer.name} won!"
+    puts sentence.upcase.center(40)
   end
 
   def archive_info
     history.push_values(human.move.to_s, computer.move.to_s, cur_winner)
   end
-
 end
 
 class RPSGame
@@ -140,7 +157,7 @@ class RPSGame
   end
 
   def reset_scores
-    unless game.human.score == 0 && game.computer.score == 0
+    if game.human.score && game.computer.score
       game.human.score = 0
       game.computer.score = 0
     end
@@ -155,6 +172,11 @@ class RPSGame
 
   def game_presentation
     clear_screen
+    game_rules
+    prompt_to_continue("Press enter to set up the game.")
+  end
+
+  def game_rules
     puts <<-EOF
      Welcome to Rock, Paper, Scissors, Lizard and Spock game!"
      This is a variation of the classic game "Rock-Paper-Scissors",
@@ -175,20 +197,17 @@ class RPSGame
      Before starting to play, you must enter your name and the number
      of points one player have to reach to win the game.
     EOF
-    prompt_to_continue("Press enter to set up the game.")
   end
 
   def display_opponent
-    prompt "Hello #{game.human.name}! Your opponent will be #{game.computer.name}."
+    prompt "Hello #{game.human.name}!" \
+           "Your opponent will be #{game.computer.name}."
     prompt_to_continue("When you are ready, press enter to start the game!")
   end
 
   def display_game_winner
-    if game.human.score == game.max_score
-      prompt "#{game.human.name} won the game!"
-    elsif game.computer.score == game.max_score
-      prompt "#{game.computer.name} won the game!"
-    end
+    winner = game.define_game_winner
+    prompt "#{winner} won the game!"
     game.display_scores
   end
 
@@ -206,7 +225,4 @@ class RPSGame
   def display_history
     game.history.display_full_game(game.human.name, game.computer.name)
   end
-
 end
-
-#RPSGame.new.play
