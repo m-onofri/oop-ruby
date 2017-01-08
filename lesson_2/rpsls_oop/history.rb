@@ -41,17 +41,9 @@ class History
   # status can be "win" or "loss"
   def computer_moves_frequencies(status)
     computer_moves = select_players_moves[:computer]
-    status_number = computer_moves.select { |move| move[1] == status }.size
-    result = {"ROCK"=>0, "PAPER"=>0, "SCISSORS"=>0, "LIZARD"=>0, "SPOCK"=>0}
-    moves_count = computer_moves.reduce(result) do |hash, move|
-      hash[move[0]] += 1 if move[1] == status
-      hash
-    end
-    moves_count.each do |key, value|
-      unless status_number == 0
-        moves_count[key] = (value.to_f / status_number).round(2)
-      end
-    end
+    total_moves = self.player_moves_number
+    moves_count = count_moves(computer_moves, status)
+    calculate_frequencies(moves_count, total_moves)
   end
 
   def player_moves_number
@@ -60,8 +52,30 @@ class History
 
   def moves_efficiency
     computer_moves = select_players_moves[:computer]
-    result = {"ROCK"=>0, "PAPER"=>0, "SCISSORS"=>0, "LIZARD"=>0, "SPOCK"=>0}
-    computer_moves.each do |move, status|
+    calculate_efficiency(computer_moves)
+  end
+
+  private
+
+  def count_moves(player_moves, status)
+    result = { "ROCK"=>0, "PAPER"=>0, "SCISSORS"=>0, "LIZARD"=>0, "SPOCK"=>0 }
+    computer_moves.reduce(result) do |hash, move|
+      hash[move[0]] += 1 if move[1] == status
+      hash
+    end
+  end
+
+  def calculate_frequencies(moves_count, total)
+    moves_count.each do |key, value|
+      unless total == 0
+        moves_count[key] = (value.to_f / total).round(2)
+      end
+    end
+  end
+
+  def calculate_efficiency(player_moves)
+    result = { "ROCK"=>0, "PAPER"=>0, "SCISSORS"=>0, "LIZARD"=>0, "SPOCK"=>0 }
+    player_moves.each do |move, status|
       case status
       when "win" then result[move] += 1
       when "loss" then result[move] -= 1
@@ -69,8 +83,6 @@ class History
     end
     result.max_by(result.size) {|_, value| value }
   end
-
-  private
 
   def change_winners_array(human_name, computer_name, current_list)
     winners = current_list[:winner].map do |winner|
