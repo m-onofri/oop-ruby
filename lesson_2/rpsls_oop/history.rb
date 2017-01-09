@@ -2,11 +2,11 @@ class History
   include FormatInfo
 
   attr_accessor :list, :matches
- 
+
   def initialize
     @matches = [{ human: [],
                   computer: [],
-                  winner: []}]
+                  winner: [] }]
     @list = @matches.last
   end
 
@@ -19,7 +19,7 @@ class History
   def archive_matches
     matches << { human: [],
                  computer: [],
-                 winner: []}
+                 winner: [] }
   end
 
   def reset_list
@@ -28,9 +28,17 @@ class History
 
   def display_full_game(human_name, computer_name)
     puts "MOVES LIST".center(60)
-    puts "ROUND".ljust(15) +"#{human_name}".ljust(15) + 
-         "#{computer_name}".ljust(15) + "ROUND WINNER".ljust(15)
+    display_column_titles(human_name, computer_name)
     separator(60)
+    display_matches(human_name, computer_name)
+  end
+
+  def display_column_titles(human_name, computer_name)
+    puts "ROUND".ljust(15) + human_name.ljust(15) +
+         computer_name.ljust(15) + "ROUND WINNER".ljust(15)
+  end
+
+  def display_matches(human_name, computer_name)
     (0...matches.size).each do |n_match|
       puts "MATCH #{n_match + 1}".center(60)
       display_rounds(human_name, computer_name, matches[n_match])
@@ -41,7 +49,7 @@ class History
   # status can be "win" or "loss"
   def computer_moves_frequencies(status)
     computer_moves = select_players_moves[:computer]
-    total_moves = self.player_moves_number
+    total_moves = player_moves_number
     moves_count = count_moves(computer_moves, status)
     calculate_frequencies(moves_count, total_moves)
   end
@@ -58,8 +66,9 @@ class History
   private
 
   def count_moves(player_moves, status)
-    result = { "ROCK"=>0, "PAPER"=>0, "SCISSORS"=>0, "LIZARD"=>0, "SPOCK"=>0 }
-    player_moves.reduce(result) do |hash, move|
+    result = { "ROCK" => 0, "PAPER" => 0, "SCISSORS" => 0,
+               "LIZARD" => 0, "SPOCK" => 0 }
+    player_moves.each_with_object(result) do |hash, move|
       hash[move[0]] += 1 if move[1] == status
       hash
     end
@@ -67,41 +76,46 @@ class History
 
   def calculate_frequencies(moves_count, total)
     moves_count.each do |key, value|
-      unless total == 0
+      unless total.zero?
         moves_count[key] = (value.to_f / total).round(2)
       end
     end
   end
 
   def calculate_efficiency(player_moves)
-    result = { "ROCK"=>0, "PAPER"=>0, "SCISSORS"=>0, "LIZARD"=>0, "SPOCK"=>0 }
+    result = { "ROCK" => 0, "PAPER" => 0, "SCISSORS" => 0,
+               "LIZARD" => 0, "SPOCK" => 0 }
     player_moves.each do |move, status|
       case status
       when "win" then result[move] += 1
       when "loss" then result[move] -= 1
       end
     end
-    result.max_by(result.size) {|_, value| value }
+    result.max_by(result.size) { |_, value| value }
   end
 
   def change_winners_array(human_name, computer_name, current_list)
-    winners = current_list[:winner].map do |winner|
-                case winner
-                when :human then human_name
-                when :computer then computer_name
-                when :tie then "tie"
-                end 
-              end
+    current_list[:winner].map do |winner|
+      case winner
+      when :human then human_name
+      when :computer then computer_name
+      when :tie then "tie"
+      end
+    end
   end
 
   def display_rounds(human_name, computer_name, current_list)
     winners = change_winners_array(human_name, computer_name, current_list)
     (0...current_list[:human].size).each do |index|
-      puts "  #{index + 1}".ljust(15) +
-           "#{current_list[:human][index]}".ljust(15) +
-           "#{current_list[:computer][index]}".ljust(15) + 
-           "#{winners[index]}".ljust(15)        
+      display_history_row(winners, index, current_list)
     end
+  end
+
+  def display_history_row(winners, index, current_list)
+    puts "  #{index + 1}".ljust(15) +
+         current_list[:human][index].ljust(15) +
+         current_list[:computer][index].ljust(15) +
+         winners[index].ljust(15)
   end
 
   def select_players_moves
@@ -109,15 +123,22 @@ class History
     matches.each do |match|
       match[:winner].each_with_index do |round_winner, index|
         if round_winner == :human
-          result[:computer] << [match[:computer][index], "loss"]
-          result[:human] << [match[:human][index], "win"]
+          update_moves_when_human_win(match, result, index)
         elsif round_winner == :computer
-          result[:computer] << [match[:computer][index], "win"]
-          result[:human] << [match[:human][index], "loss"]
+          update_moves_when_computer_win(match, result, index)
         end
       end
     end
     result
   end
 
+  def update_moves_when_human_win(match, hash, index)
+    hash[:computer] << [match[:computer][index], "loss"]
+    hash[:human] << [match[:human][index], "win"]
+  end
+
+  def update_moves_when_computer_win(match, hash, index)
+    hash[:computer] << [match[:computer][index], "win"]
+    hash[:human] << [match[:human][index], "loss"]
+  end
 end
