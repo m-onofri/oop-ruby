@@ -1,37 +1,33 @@
 class Move
   attr_reader :value
- 
-  AVAILABLE_MOVES = { "r" => "ROCK",
-                      "p" => "PAPER",
-                      "s" => "SCISSORS",
-                      "k" => "SPOCK",
-                      "l" => "LIZARD" }.freeze
-  WIN_COMBINATION = { "rl" => "Rock crush Lizard!",
-                      "lk" => "Lizard poisons Spock!",
-                      "ks" => "Spock smashes Scissors!",
-                      "sp" => "Scissors cut Paper!",
-                      "pr" => "Paper covers Rock!",
-                      "rs" => "Rock crushes Scissors!",
-                      "pk" => "Paper disproves Spock!",
-                      "sl" => "Scissors decapitates Lizard!",
-                      "kr" => "Spock vaporizes Rock!",
-                      "lp" => "Lizard eats Paper!" }.freeze
+
+  AVAILABLE_MOVES = %w(ROCK PAPER SCISSORS SPOCK LIZARD).freeze
+  WIN_COMBINATION = { "ROCK" => { "LIZARD" => "Rock crush Lizard!",
+                                  "SCISSORS" => "Rock crushes Scissors!" },
+                      "LIZARD" => { "SPOCK" => "Lizard poisons Spock!",
+                                    "PAPER" => "Lizard eats Paper!" },
+                      "SPOCK" => { "SCISSORS" => "Spock smashes Scissors!",
+                                   "ROCK" => "Spock vaporizes Rock!" },
+                      "SCISSORS" => { "PAPER" => "Scissors cut Paper!",
+                                      "LIZARD" => "Scissors decapitates" \
+                                                  "Lizard!" },
+                      "PAPER" => { "ROCK" => "Paper covers Rock!",
+                                   "SPOCK" => "Paper disproves" \
+                                              "Spock!" } }.freeze
 
   def initialize(player_choice)
     @value = player_choice
   end
 
   def >(other_player)
-    combination = value + other_player.value
-    WIN_COMBINATION.keys.include?(combination)
+    nil | WIN_COMBINATION[value][other_player.value]
   end
 
   def <(other_player)
-    combination = other_player.value + value
-    WIN_COMBINATION.keys.include?(combination)
+    nil | WIN_COMBINATION[other_player.value][value]
   end
 
   def to_s
-    AVAILABLE_MOVES[@value]
+    @value
   end
 end

@@ -2,7 +2,7 @@ module FormatInfo
   def prompt(string)
     puts "==> #{string}"
   end
-  
+
   def check_yes_no_answer
     loop do
       answer = gets.chomp.downcase
@@ -24,7 +24,7 @@ module FormatInfo
     system('clear') || system('cls')
   end
 
-  def separator(width = 50, symbol = "=" )
+  def separator(width = 50, symbol = "=")
     puts symbol * width
   end
 end

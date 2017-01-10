@@ -71,7 +71,7 @@ class RoundsManager
   end
 
   def set_win_comb
-    @win_comb = human.move.value + computer.move.value
+    @win_comb = [human.move.value, computer.move.value]
   end
 
   def define_round_winner
@@ -112,12 +112,13 @@ class RoundsManager
   end
 
   def human_win_sentence
-    sentence = Move::WIN_COMBINATION[win_comb] + " #{human.name} won!"
+    sentence = Move::WIN_COMBINATION[win_comb[0]][win_comb[1]] +
+               " #{human.name} won!"
     puts sentence.upcase.center(40)
   end
 
   def computer_win_sentence
-    sentence = Move::WIN_COMBINATION[win_comb.reverse] +
+    sentence = Move::WIN_COMBINATION[win_comb[1]][win_comb[0]] +
                " #{computer.name} won!"
     puts sentence.upcase.center(40)
   end

@@ -32,11 +32,11 @@ class Human < Player
     loop do
       choice_request
       case gets.chomp.downcase
-      when "r", "rock" then return "r"
-      when "p", "paper" then return "p"
-      when "s", "scissors" then return "s"
-      when "l", "lizard" then return "l"
-      when "k", "spock" then return "k"
+      when "r", "rock" then return "ROCK"
+      when "p", "paper" then return "PAPER"
+      when "s", "scissors" then return "SCISSORS"
+      when "l", "lizard" then return "LIZARD"
+      when "k", "spock" then return "SPOCK"
       else prompt "Sorry, invalid choice."
       end
     end
@@ -62,11 +62,15 @@ class Computer < Player
     @score = 0
     @history = history
     set_name
-    @freq = { "p" => 0.2, "s" => 0.2, "l" => 0.2, "k" => 0.2, "r" => 0.2 }
+    @freq = { "PAPER" => 0.2,
+              "SCISSORS" => 0.2,
+              "LIZARD" => 0.2,
+              "SPOCK" => 0.2,
+              "ROCK" => 0.2 }
   end
 
   def choose
-    self.move = Move.new(Move::AVAILABLE_MOVES.keys.sample)
+    self.move = Move.new(Move::AVAILABLE_MOVES.sample)
   end
 
   private
@@ -76,8 +80,8 @@ class Computer < Player
   end
 
   def remove_loss_move(loss_move)
-    moves_array = Move::AVAILABLE_MOVES.keys.reject do |move|
-      move == Move::AVAILABLE_MOVES.key(loss_move)
+    moves_array = Move::AVAILABLE_MOVES.reject do |move|
+      move == loss_move
     end
     Move.new(moves_array.sample)
   end
@@ -89,7 +93,7 @@ class R2D2 < Computer
   end
 
   def choose
-    self.move = Move.new(Move::AVAILABLE_MOVES.keys[0..2].sample)
+    self.move = Move.new(Move::AVAILABLE_MOVES[0..2].sample)
   end
 end
 
@@ -105,7 +109,7 @@ class Hal < Computer
     self.move = if comp_moves >= 5 && loss_move[1] > 0.2
                   remove_loss_move(loss_move[0])
                 else
-                  Move.new(Move::AVAILABLE_MOVES.keys.sample)
+                  Move.new(Move::AVAILABLE_MOVES.sample)
                 end
   end
 end
@@ -119,7 +123,7 @@ class Chappie < Computer
     comp_moves = history.player_moves_number
     if (comp_moves % 5).zero? && comp_moves.odd? && comp_moves > 1
       efficiency = history.moves_efficiency
-      most_efficient_move = Move::AVAILABLE_MOVES.key(efficiency.first[0])
+      most_efficient_move = efficiency.first[0]
       @freq.each do |move, _|
         @freq[move] = if move == most_efficient_move
                         0.60
@@ -138,7 +142,11 @@ class Sonnie < Computer
   end
 
   def choose
-    @freq = { "p" => 0.05, "s" => 0.05, "l" => 0.05, "k" => 0.05, "r" => 0.8 }
+    @freq = { "PAPER" => 0.05,
+              "SCISSORS" => 0.05,
+              "LIZARD" => 0.05,
+              "SPOCK" => 0.05,
+              "ROCK" => 0.8 }
     self.move = Move.new(weighted_sample)
   end
 end
