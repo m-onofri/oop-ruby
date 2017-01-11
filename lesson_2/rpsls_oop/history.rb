@@ -66,8 +66,7 @@ class History
   private
 
   def count_moves(player_moves, status)
-    result = { "ROCK" => 0, "PAPER" => 0, "SCISSORS" => 0,
-               "LIZARD" => 0, "SPOCK" => 0 }
+    result = { rock: 0, paper: 0, scissors: 0, lizard: 0, spock: 0 }
     player_moves.each_with_object(result) do |hash, move|
       hash[move[0]] += 1 if move[1] == status
       hash
@@ -83,8 +82,7 @@ class History
   end
 
   def calculate_efficiency(player_moves)
-    result = { "ROCK" => 0, "PAPER" => 0, "SCISSORS" => 0,
-               "LIZARD" => 0, "SPOCK" => 0 }
+    result = { rock: 0, paper: 0, scissors: 0, lizard: 0, spock: 0 }
     player_moves.each do |move, status|
       case status
       when "win" then result[move] += 1

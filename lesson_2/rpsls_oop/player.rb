@@ -32,11 +32,11 @@ class Human < Player
     loop do
       choice_request
       case gets.chomp.downcase
-      when "r", "rock" then return "ROCK"
-      when "p", "paper" then return "PAPER"
-      when "s", "scissors" then return "SCISSORS"
-      when "l", "lizard" then return "LIZARD"
-      when "k", "spock" then return "SPOCK"
+      when "r", "rock" then return :rock
+      when "p", "paper" then return :paper
+      when "s", "scissors" then return :scissors
+      when "l", "lizard" then return :lizard
+      when "k", "spock" then return :spock
       else prompt "Sorry, invalid choice."
       end
     end
@@ -62,15 +62,15 @@ class Computer < Player
     @score = 0
     @history = history
     set_name
-    @freq = { "PAPER" => 0.2,
-              "SCISSORS" => 0.2,
-              "LIZARD" => 0.2,
-              "SPOCK" => 0.2,
-              "ROCK" => 0.2 }
+    @freq = { paper: 0.2,
+              scissors: 0.2,
+              lizard: 0.2,
+              spock: 0.2,
+              rock: 0.2 }
   end
 
   def choose
-    self.move = Move.new(Move::AVAILABLE_MOVES.sample)
+    self.move = Move.new(Move::AVAILABLE_MOVES.keys.sample)
   end
 
   private
@@ -80,23 +80,27 @@ class Computer < Player
   end
 
   def remove_loss_move(loss_move)
-    moves_array = Move::AVAILABLE_MOVES.reject do |move|
+    moves_array = Move::AVAILABLE_MOVES.keys.reject do |move|
       move == loss_move
     end
     Move.new(moves_array.sample)
   end
 end
 
+# It chooses only between Rock, Paper and Scissors
 class R2D2 < Computer
   def set_name
     @name = "R2D2"
   end
 
   def choose
-    self.move = Move.new(Move::AVAILABLE_MOVES[0..2].sample)
+    self.move = Move.new(Move::AVAILABLE_MOVES.keys[0..2].sample)
   end
 end
 
+# After 5 moves it checks if the loss frequency of a move is higher
+# than 20%; in that case it removes the move from the available ones
+# and chooses only between the remaining four.
 class Hal < Computer
   def set_name
     @name = "Hal"
@@ -109,11 +113,13 @@ class Hal < Computer
     self.move = if comp_moves >= 5 && loss_move[1] > 0.2
                   remove_loss_move(loss_move[0])
                 else
-                  Move.new(Move::AVAILABLE_MOVES.sample)
+                  Move.new(Move::AVAILABLE_MOVES.keys.sample)
                 end
   end
 end
 
+# Every 5 moves it checks the efficiency of each move; than it increases
+# the weight for the most efficient move.
 class Chappie < Computer
   def set_name
     @name = "Chappie"
@@ -121,7 +127,7 @@ class Chappie < Computer
 
   def choose
     comp_moves = history.player_moves_number
-    if (comp_moves % 5).zero? && comp_moves.odd? && comp_moves > 1
+    if (comp_moves % 5).zero? && comp_moves > 1
       efficiency = history.moves_efficiency
       most_efficient_move = efficiency.first[0]
       @freq.each do |move, _|
@@ -136,17 +142,18 @@ class Chappie < Computer
   end
 end
 
+# It has a very high tendency to choose Rock
 class Sonnie < Computer
   def set_name
     @name = "Sonnie"
   end
 
   def choose
-    @freq = { "PAPER" => 0.05,
-              "SCISSORS" => 0.05,
-              "LIZARD" => 0.05,
-              "SPOCK" => 0.05,
-              "ROCK" => 0.8 }
+    @freq = { paper: 0.05,
+              scissors: 0.05,
+              lizard: 0.05,
+              spock: 0.05,
+              rock: 0.8 }
     self.move = Move.new(weighted_sample)
   end
 end
