@@ -1,5 +1,5 @@
 class History
-  include FormatInfo
+  include Displayable
 
   attr_accessor :list, :matches
 
@@ -27,23 +27,14 @@ class History
   end
 
   def display_full_game(human_name, computer_name)
-    puts "MOVES LIST".center(60)
+    puts "MOVES LIST".center(55)
     display_column_titles(human_name, computer_name)
-    separator(60)
+    separator(55)
     display_matches(human_name, computer_name)
   end
 
-  def display_column_titles(human_name, computer_name)
-    puts "ROUND".ljust(15) + human_name.ljust(15) +
-         computer_name.ljust(15) + "ROUND WINNER".ljust(15)
-  end
-
-  def display_matches(human_name, computer_name)
-    (0...matches.size).each do |n_match|
-      puts "MATCH #{n_match + 1}".center(60)
-      display_rounds(human_name, computer_name, matches[n_match])
-      separator(60, "-")
-    end
+  def player_moves_number
+    select_players_moves[:computer].size
   end
 
   # status can be "win" or "loss"
@@ -54,10 +45,6 @@ class History
     calculate_frequencies(moves_count, total_moves)
   end
 
-  def player_moves_number
-    select_players_moves[:computer].size
-  end
-
   def moves_efficiency
     computer_moves = select_players_moves[:computer]
     calculate_efficiency(computer_moves)
@@ -65,31 +52,24 @@ class History
 
   private
 
-  def count_moves(player_moves, status)
-    result = { rock: 0, paper: 0, scissors: 0, lizard: 0, spock: 0 }
-    player_moves.each_with_object(result) do |hash, move|
-      hash[move[0]] += 1 if move[1] == status
-      hash
+  def display_column_titles(human_name, computer_name)
+    puts "ROUND".ljust(10) + human_name.ljust(15) +
+         computer_name.ljust(15) + "ROUND WINNER".ljust(15)
+  end
+
+  def display_matches(human_name, computer_name)
+    (0...matches.size).each do |n_match|
+      puts "MATCH #{n_match + 1}".center(55)
+      display_rounds(human_name, computer_name, matches[n_match])
+      separator(55, "-")
     end
   end
 
-  def calculate_frequencies(moves_count, total)
-    moves_count.each do |key, value|
-      unless total.zero?
-        moves_count[key] = (value.to_f / total).round(2)
-      end
+  def display_rounds(human_name, computer_name, current_list)
+    winners = change_winners_array(human_name, computer_name, current_list)
+    (0...current_list[:human].size).each do |index|
+      display_history_row(winners, index, current_list)
     end
-  end
-
-  def calculate_efficiency(player_moves)
-    result = { rock: 0, paper: 0, scissors: 0, lizard: 0, spock: 0 }
-    player_moves.each do |move, status|
-      case status
-      when "win" then result[move] += 1
-      when "loss" then result[move] -= 1
-      end
-    end
-    result.max_by(result.size) { |_, value| value }
   end
 
   def change_winners_array(human_name, computer_name, current_list)
@@ -102,15 +82,8 @@ class History
     end
   end
 
-  def display_rounds(human_name, computer_name, current_list)
-    winners = change_winners_array(human_name, computer_name, current_list)
-    (0...current_list[:human].size).each do |index|
-      display_history_row(winners, index, current_list)
-    end
-  end
-
   def display_history_row(winners, index, current_list)
-    puts "  #{index + 1}".ljust(15) +
+    puts "  #{index + 1}".ljust(10) +
          current_list[:human][index].ljust(15) +
          current_list[:computer][index].ljust(15) +
          winners[index].ljust(15)
@@ -128,6 +101,37 @@ class History
       end
     end
     result
+  end
+
+  def count_moves(player_moves, status)
+    result = { rock: 0, paper: 0, scissors: 0, lizard: 0, spock: 0 }
+    player_moves.each_with_object(result) do |move, hash|
+      if move[1] == status
+        hash[Move::AVAILABLE_MOVES.key(move[0])] += 1
+      end
+      hash
+    end
+  end
+
+  def calculate_frequencies(moves_count, total)
+    moves_count.each do |key, value|
+      unless total.zero?
+        moves_count[key] = (value.to_f / total).round(2)
+      end
+    end
+  end
+
+  def calculate_efficiency(player_moves)
+    result = { rock: 0, paper: 0, scissors: 0, lizard: 0, spock: 0 }
+    player_moves.each do |move|
+      case move[1]
+      when "win"
+        result[Move::AVAILABLE_MOVES.key(move[0])] += 1
+      when "loss"
+        result[Move::AVAILABLE_MOVES.key(move[0])] -= 1
+      end
+    end
+    result.max_by(result.size) { |_, value| value }
   end
 
   def update_moves_when_human_win(match, hash, index)

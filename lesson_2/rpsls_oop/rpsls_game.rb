@@ -1,5 +1,110 @@
+# RPSLSGame class
+# RoundsManager class
+
+class RPSLSGame
+  include Displayable
+
+  attr_accessor :game
+
+  def initialize
+    game_presentation
+    @game = RoundsManager.new
+  end
+
+  def play
+    display_opponent
+    loop do
+      reset_game
+      @game.start
+      display_game_winner
+      break unless play_again?
+    end
+    display_history
+    display_goodbye_message
+  end
+
+  private
+
+  def reset_game
+    clear_screen
+    reset_scores
+    reset_history
+  end
+
+  def reset_scores
+    if game.human.score && game.computer.score
+      game.human.score = 0
+      game.computer.score = 0
+    end
+  end
+
+  def reset_history
+    unless game.history.list[:winner].empty?
+      game.history.archive_matches
+      game.history.reset_list
+    end
+  end
+
+  def game_presentation
+    clear_screen
+    game_rules
+    prompt_to_continue("Press enter to set up the game.")
+  end
+
+  def game_rules
+    puts <<-EOF
+     Welcome to Rock, Paper, Scissors, Lizard and Spock game!"
+     This is a variation of the classic game "Rock-Paper-Scissors",
+     with the addition of two other choices: "Spock" and "Lizard".
+     Here the rules of the game:
+
+     - Rock crush Lizard
+     - Lizard poisons Spock
+     - Spock smashes Scissors
+     - Scissors cut Paper
+     - Paper covers Rock
+     - Rock crushes Scissors
+     - Paper disproves Spock
+     - Scissors decapitates Lizard
+     - Spock vaporizes Rock
+     - Lizard eats Paper
+
+     Before starting to play, you must enter your name and the number
+     of points one player have to reach to win the game.
+    EOF
+  end
+
+  def display_opponent
+    prompt "Hello #{game.human.name}! " \
+           "Your opponent will be #{game.computer.name}."
+    prompt_to_continue("When you are ready, press enter to start the game!")
+  end
+
+  def display_game_winner
+    winner = game.define_game_winner
+    prompt "#{winner} won the game!"
+    game.display_scores
+  end
+
+  def play_again?
+    prompt "Would you like to play again?(y/n)"
+    check_yes_no_answer
+  end
+
+  def display_goodbye_message
+    puts ""
+    prompt "Goodbye #{game.human.name}! Thanks " \
+         "for playing Rock, Paper, Scissors, Lizard and Spock game!"
+  end
+
+  def display_history
+    game.history.display_full_game(game.human.name, game.computer.name)
+  end
+end
+
 class RoundsManager
-  include FormatInfo
+  include Displayable
+
   attr_accessor :human, :computer, :max_score, :cur_winner,
                 :win_comb, :history
 
@@ -38,14 +143,16 @@ class RoundsManager
   private
 
   def set_max_score
-    prompt "Please set the score that players have to reach to win the game:"
-    prompt "(by default this value is set to 10)"
+    prompt "By default the score that players have to reach to win the game " \
+           "is set to 10."
+    prompt "Press enter if this value is OK, otherwise enter a positive " \
+           "integer greater than 1."
     answer = nil
     loop do
       user_input = gets.chomp
       answer = user_input == "" ? 10 : user_input.to_i
       break if answer > 1
-      prompt "Invalid input; please enter a positive number greater than 1."
+      prompt "Invalid input; please enter a positive integer greater than 1."
     end
     @max_score = answer
     clear_screen
@@ -125,105 +232,5 @@ class RoundsManager
 
   def archive_info
     history.push_values(human.move.to_s, computer.move.to_s, cur_winner)
-  end
-end
-
-class RPSGame
-  include FormatInfo
-  attr_accessor :game
-
-  def initialize
-    game_presentation
-    @game = RoundsManager.new
-  end
-
-  def play
-    display_opponent
-    loop do
-      reset_game
-      @game.start
-      display_game_winner
-      break unless play_again?
-    end
-    display_history
-    display_goodbye_message
-  end
-
-  private
-
-  def reset_game
-    clear_screen
-    reset_scores
-    reset_history
-  end
-
-  def reset_scores
-    if game.human.score && game.computer.score
-      game.human.score = 0
-      game.computer.score = 0
-    end
-  end
-
-  def reset_history
-    unless game.history.list[:winner].empty?
-      game.history.archive_matches
-      game.history.reset_list
-    end
-  end
-
-  def game_presentation
-    clear_screen
-    game_rules
-    prompt_to_continue("Press enter to set up the game.")
-  end
-
-  def game_rules
-    puts <<-EOF
-     Welcome to Rock, Paper, Scissors, Lizard and Spock game!"
-     This is a variation of the classic game "Rock-Paper-Scissors",
-     with the addition of two other choices: "Spock" and "Lizard".
-     Here the rules of the game:
-
-     - Rock crush Lizard
-     - Lizard poisons Spock
-     - Spock smashes Scissors
-     - Scissors cut Paper
-     - Paper covers Rock
-     - Rock crushes Scissors
-     - Paper disproves Spock
-     - Scissors decapitates Lizard
-     - Spock vaporizes Rock
-     - Lizard eats Paper
-
-     Before starting to play, you must enter your name and the number
-     of points one player have to reach to win the game.
-    EOF
-  end
-
-  def display_opponent
-    prompt "Hello #{game.human.name}!" \
-           "Your opponent will be #{game.computer.name}."
-    prompt_to_continue("When you are ready, press enter to start the game!")
-  end
-
-  def display_game_winner
-    winner = game.define_game_winner
-    prompt "#{winner} won the game!"
-    game.display_scores
-  end
-
-  def play_again?
-    prompt "Would you like to play again?(y/n)"
-    check_yes_no_answer
-  end
-
-  def display_goodbye_message
-    puts ""
-    prompt "Goodbye #{game.human.name}! Thanks " \
-         "for playing Rock, Paper, Scissors, Lizard and Spock game!"
-  end
-
-  def display_history
-    game.history.display_full_game(game.human.name, game.computer.name)
   end
 end

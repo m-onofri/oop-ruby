@@ -1,5 +1,15 @@
+# Player class
+# Human class
+# Computer class
+# R2D2 class
+# Hal class
+# Chappie class
+# Sonnie class
+# Number5 class
+
 class Player
-  include FormatInfo
+  include Displayable
+
   attr_accessor :move, :score, :name
 
   def initialize

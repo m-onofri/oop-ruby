@@ -1,4 +1,4 @@
-module FormatInfo
+module Displayable
   def prompt(string)
     puts "==> #{string}"
   end
