@@ -140,8 +140,8 @@ class Chappie < Computer
     if (comp_moves % 5).zero? && comp_moves > 1
       efficiency = history.moves_efficiency
       most_efficient_move = efficiency.first[0]
-      @freq.each do |move, _|
-        @freq[move] = if move == most_efficient_move
+      freq.each do |move, _|
+        freq[move] = if move == most_efficient_move
                         0.60
                       else
                         0.10

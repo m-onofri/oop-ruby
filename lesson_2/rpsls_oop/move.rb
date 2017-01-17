@@ -31,6 +31,6 @@ class Move
   end
 
   def to_s
-    AVAILABLE_MOVES[@value]
+    AVAILABLE_MOVES[value]
   end
 end

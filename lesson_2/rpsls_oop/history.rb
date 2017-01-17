@@ -7,7 +7,7 @@ class History
     @matches = [{ human: [],
                   computer: [],
                   winner: [] }]
-    @list = @matches.last
+    reset_list
   end
 
   def push_values(human_move, computer_move, winner)
@@ -109,7 +109,6 @@ class History
       if move[1] == status
         hash[Move::AVAILABLE_MOVES.key(move[0])] += 1
       end
-      hash
     end
   end
 

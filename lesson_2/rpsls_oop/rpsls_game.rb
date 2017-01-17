@@ -159,7 +159,7 @@ class RoundsManager
   end
 
   def select_computer_player
-    case (1..5).to_a.sample
+    case [4].sample
     when 1 then R2D2.new(history)
     when 2 then Hal.new(history)
     when 3 then Chappie.new(history)
