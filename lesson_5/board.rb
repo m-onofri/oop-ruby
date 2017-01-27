@@ -50,7 +50,6 @@ class Board
 end
 
 class Board3 < Board
-
   WINNING_ROWS = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7],
                   [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]].freeze
 
@@ -119,14 +118,13 @@ class Board3 < Board
 end
 
 class Board5 < Board
-
   WINNING_ROWS = [[1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14, 15],
                   [16, 17, 18, 19, 20], [21, 22, 23, 24, 25],
-                  [1, 6, 11, 16, 21], [2, 7, 12, 17, 22], 
+                  [1, 6, 11, 16, 21], [2, 7, 12, 17, 22],
                   [3, 8, 13, 18, 23], [4, 9, 14, 19, 24],
                   [5, 10, 15, 20, 25], [1, 7, 13, 19, 25],
                   [5, 9, 13, 17, 21], [4, 8, 12, 16],
-                  [10, 14, 18, 22], [2, 8, 14, 20],[6, 12, 18, 24]].freeze
+                  [10, 14, 18, 22], [2, 8, 14, 20], [6, 12, 18, 24]].freeze
 
   def reset_squares
     @squares = (1..25).each_with_object({}) do |num, hash|
@@ -168,12 +166,11 @@ class Board5 < Board
   def winning_marker
     WINNING_ROWS.each do |row|
       squares = @squares.values_at(*row)
-      if four_identical_markers?(squares)
-        marker_winner = squares.reduce(Hash.new(0)) do |hash, square|
-          hash[square.marker] += 1; hash
-        end
-        return marker_winner.key(4)
+      next unless four_identical_markers?(squares)
+      winner = squares.each_with_object(Hash.new(0)) do |square, hash|
+        hash[square.marker] += 1
       end
+      return winner.key(4)
     end
     nil
   end
@@ -194,56 +191,70 @@ class Board5 < Board
     return first_defensive_move unless first_defensive_move.nil?
     second_defensive_move = second_defence(user_marker)
     return second_defensive_move unless second_defensive_move.nil?
-    return 13 if empty_square?(13)
-    best_alt = [7, 8, 9, 12, 14, 17, 18, 19].sample
-    return best_alt if empty_square?(best_alt)
-    available_squares.sample
+    basic_moves
   end
 
-  def empty_square?(square)
-    squares[square].marker == Square::EMPTY_SQUARE
+  def basic_moves
+    if squares[13].unmarked?
+      13
+    elsif squares[best_alt].unmarked?
+      best_alt
+    else
+      available_squares.sample
+    end
+  end
+
+  def best_alt
+    [7, 8, 9, 12, 14, 17, 18, 19].sample
   end
 
   def second_defence(marker)
     WINNING_ROWS.each do |row|
       next unless two_markers_in_a_row?(marker, row)
-      row_string = squares.values_at(*row).map(&:marker).join
-      if row_string.include?(marker * 2)
-        index = row_string.index(marker * 2)
-        if index != 0 || !squares[row[index - 1]].marked?
-          return row[index - 1]
-        elsif !squares[row[index + 2]].marked?
-          return row[index + 2]
-        end
-      elsif row_string.include?(marker + " " + marker)
-        index = row_string.index(marker + " " + marker)
-        return row[index + 1]
-      end
+      move = set_second_defence_move(row, marker)
+      return move unless move.nil?
       row.each do |square|
         return square if squares[square].marker == Square::EMPTY_SQUARE
       end
     end
     nil
+  end
+
+  def set_second_defence_move(row, marker)
+    row_string = row_array(row).join
+    if row_string.include?(marker * 2)
+      move = move_for_two_consecutive_marker(row_string, marker, row)
+      return move unless move.nil?
+    elsif row_string.include?(marker + " " + marker)
+      index = row_string.index(marker + " " + marker)
+      return row[index + 1]
+    end
+    nil
+  end
+
+  def move_for_two_consecutive_marker(row_string, marker, row)
+    index = row_string.index(marker * 2)
+    if previous_square_available?(index, row)
+      return row[index - 1]
+    elsif next_square_available?(index, row, 2)
+      return row[index + 2]
+    end
+    nil
+  end
+
+  def previous_square_available?(index, row)
+    index.nonzero? && squares[row[index - 1]].unmarked?
+  end
+
+  def next_square_available?(index, row, num)
+    (index + num) < row.size && squares[row[index + num]].unmarked?
   end
 
   def smart_choice(marker)
     WINNING_ROWS.each do |row|
       next unless three_markers_in_a_row?(marker, row)
-      row_string = squares.values_at(*row).map(&:marker).join
-      if row_string.include?(marker * 3)
-        square_index = row_string.index(marker * 3)
-        if square_index != 0 && squares[row[square_index - 1]].unmarked?
-          return row[square_index - 1]
-        elsif (square_index + 3) <row.size && squares[row[square_index + 3]].unmarked?
-          return row[square_index + 3]
-        end
-      elsif row_string.include?(marker + " " + marker + marker)
-        square_index = row_string.index(marker + " " + marker + marker)
-        return row[square_index + 1]
-      elsif row_string.include?(marker + marker + " " + marker)
-        square_index = row_string.index(marker + " " + marker + marker)
-        return row[square_index + 2]
-      end
+      move = set_smart_choice_move(row, marker)
+      return move unless move.nil?
       row.each do |square|
         return square if squares[square].marker == Square::EMPTY_SQUARE
       end
@@ -251,24 +262,70 @@ class Board5 < Board
     nil
   end
 
+  def set_smart_choice_move(row, marker)
+    row_string = row_array(row).join
+    pattern1 = marker + " " + marker + marker
+    pattern2 = marker + marker + " " + marker
+    smart_choice_move(row_string, row, marker, pattern2, pattern1)
+  end
+
+  def smart_choice_move(row_string, row, marker, pattern2, pattern1)
+    if row_string.include?(marker * 3)
+      move = move_for_three_consecutive_marker(row_string, marker, row)
+      return move unless move.nil?
+    elsif pattern_included?(row_string, pattern1)
+      square_index = find_index(row_string, pattern1)
+      return row[square_index + 1]
+    elsif pattern_included?(row_string, pattern2)
+      square_index = find_index(row_string, pattern2)
+      return row[square_index + 2]
+    end
+    nil
+  end
+
+  def pattern_included?(string, pattern)
+    string.include?(pattern)
+  end
+
+  def find_index(string, pattern)
+    string.index(pattern)
+  end
+
+  def move_for_three_consecutive_marker(row_string, marker, row)
+    square_index = row_string.index(marker * 3)
+    if previous_square_available?(square_index, row)
+      return row[square_index - 1]
+    elsif next_square_available?(square_index, row, 3)
+      return row[square_index + 3]
+    end
+    nil
+  end
+
   def two_markers_in_a_row?(marker, row)
-    if squares.values_at(*row).map(&:marker).count(marker) == 2
-      row_string = squares.values_at(*row).map(&:marker).join
-      bad_patterns = [user_marker + computer_marker + user_marker,
-                      user_marker + user_marker + computer_marker,
-                      computer_marker + user_marker + user_marker,
-                      computer_marker + user_marker + computer_marker,
-                      computer_marker + computer_marker + user_marker,
-                      user_marker + computer_marker + computer_marker]
-      bad_patterns.each do |pattern|
+    if row_array(row).count(marker) == 2
+      row_string = row_array(row).join
+      patterns_to_ignore.each do |pattern|
         return false if row_string.include?(pattern)
       end
-      return true
+      true
     end
   end
 
+  def patterns_to_ignore
+    [@user_marker + @computer_marker + @user_marker,
+     @user_marker + @user_marker + @computer_marker,
+     @computer_marker + @user_marker + @user_marker,
+     @computer_marker + @user_marker + @computer_marker,
+     @computer_marker + @computer_marker + @user_marker,
+     @user_marker + @computer_marker + @computer_marker]
+  end
+
+  def row_array(row)
+    squares.values_at(*row).map(&:marker)
+  end
+
   def three_markers_in_a_row?(marker, row)
-    squares.values_at(*row).map(&:marker).count(marker) == 3
+    row_array(row).count(marker) == 3
   end
 end
 
@@ -293,4 +350,3 @@ class Square
     marker
   end
 end
-
