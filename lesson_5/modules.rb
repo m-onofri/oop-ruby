@@ -20,6 +20,11 @@ module Displayable
     clear_screen
   end
 
+  def setup_title(step_num)
+    puts "SETUP GAME - STEP #{step_num}".center(60)
+    puts
+  end
+
   def clear_screen
     system('clear') || system('cls')
   end
@@ -28,7 +33,7 @@ module Displayable
     puts symbol * width
   end
 
-  def joinor(array, sep = ", ", last_sep = " or ")
+  def join_items(array, sep = ", ", last_sep = " or ")
     last_item = array[-1].to_s
     final_str = array[0..-2].join(sep)
     if array.size == 1
@@ -41,6 +46,8 @@ module Displayable
 end
 
 module CoinToss
+  include Displayable
+
   def coin_toss_manager
     coin_toss = coin_toss_result
     user_choice = valid_coin_toss_choice
