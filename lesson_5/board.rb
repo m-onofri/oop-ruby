@@ -4,11 +4,11 @@ require 'pry'
 class Board
   include Displayable
 
-  attr_reader :squares, :user_marker, :computer_marker
+  attr_reader :squares, :user_marker, :comp_marker
 
   def initialize(markers)
     @user_marker = markers[:human]
-    @computer_marker = markers[:computer]
+    @comp_marker = markers[:computer]
     reset_squares
   end
 
@@ -94,7 +94,7 @@ class Board3 < Board
   end
 
   def computer_chose_move
-    offensive_move = smart_choice(computer_marker)
+    offensive_move = smart_choice(comp_marker)
     return offensive_move unless offensive_move.nil?
     defensive_move = smart_choice(user_marker)
     return defensive_move unless defensive_move.nil?
@@ -180,12 +180,12 @@ class Board5 < Board
   def four_identical_markers?(squares)
     markers = squares.select(&:marked?).collect(&:marker).join
     human_string_win = user_marker * 4
-    computer_string_win = computer_marker * 4
+    computer_string_win = comp_marker * 4
     markers.include?(human_string_win) || markers.include?(computer_string_win)
   end
 
   def computer_chose_move
-    offensive_move = smart_choice(computer_marker)
+    offensive_move = smart_choice(comp_marker)
     return offensive_move unless offensive_move.nil?
     first_defensive_move = smart_choice(user_marker)
     return first_defensive_move unless first_defensive_move.nil?
@@ -304,28 +304,34 @@ class Board5 < Board
   def two_markers_in_a_row?(marker, row)
     if row_array(row).count(marker) == 2
       row_string = row_array(row).join
-      patterns_to_ignore[0].each do |pattern|
+      patterns_to_ignore_two_markers.each do |pattern|
         return false if row_string.include?(pattern)
       end
       true
     end
   end
 
-  def patterns_to_ignore
-    [[@user_marker + @computer_marker + @user_marker,
-     @user_marker + @user_marker + @computer_marker,
-     @computer_marker + @user_marker + @user_marker,
-     @computer_marker + @user_marker + @computer_marker,
-     @computer_marker + @computer_marker + @user_marker,
-     @user_marker + @computer_marker + @computer_marker],
-     [@computer_marker + @computer_marker + @user_marker + @computer_marker,
-      @computer_marker + @user_marker + @computer_marker + @computer_marker,
-      @user_marker + @user_marker + @computer_marker + @user_marker,
-      @user_marker + @computer_marker + @user_marker + @user_marker,
-      @user_marker + @user_marker + @user_marker + @computer_marker + " ",
-      " " + @computer_marker + @user_marker + @user_marker + @user_marker,
-      @computer_marker + @computer_marker + @computer_marker + @user_marker + " ",
-      " " + @user_marker + @computer_marker + @computer_marker + @computer_marker]]
+  def patterns_to_ignore_two_markers
+    [@user_marker + @comp_marker + @user_marker,
+     @user_marker + @user_marker + @comp_marker,
+     @comp_marker + @user_marker + @user_marker,
+     @comp_marker + @user_marker + @comp_marker,
+     @comp_marker + @comp_marker + @user_marker,
+     @user_marker + @comp_marker + @comp_marker]
+  end
+
+  def patterns_to_ignore_three_markers1
+    [@comp_marker + @comp_marker + @user_marker + @comp_marker,
+     @comp_marker + @user_marker + @comp_marker + @comp_marker,
+     @user_marker + @user_marker + @comp_marker + @user_marker,
+     @user_marker + @comp_marker + @user_marker + @user_marker]
+  end
+
+  def patterns_to_ignore_three_markers2
+    [@user_marker + @user_marker + @user_marker + @comp_marker + " ",
+     " " + @comp_marker + @user_marker + @user_marker + @user_marker,
+     @comp_marker + @comp_marker + @comp_marker + @user_marker + " ",
+     " " + @user_marker + @comp_marker + @comp_marker + @comp_marker]
   end
 
   def row_array(row)
@@ -335,7 +341,10 @@ class Board5 < Board
   def three_markers_in_a_row?(marker, row)
     if row_array(row).count(marker) == 3
       row_string = row_array(row).join
-      patterns_to_ignore[1].each do |pattern|
+      patterns_to_ignore_three_markers1.each do |pattern|
+        return false if row_string.include?(pattern)
+      end
+      patterns_to_ignore_three_markers2.each do |pattern|
         return false if row_string.include?(pattern)
       end
       true
