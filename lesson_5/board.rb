@@ -304,7 +304,7 @@ class Board5 < Board
   def two_markers_in_a_row?(marker, row)
     if row_array(row).count(marker) == 2
       row_string = row_array(row).join
-      patterns_to_ignore.each do |pattern|
+      patterns_to_ignore[0].each do |pattern|
         return false if row_string.include?(pattern)
       end
       true
@@ -312,12 +312,20 @@ class Board5 < Board
   end
 
   def patterns_to_ignore
-    [@user_marker + @computer_marker + @user_marker,
+    [[@user_marker + @computer_marker + @user_marker,
      @user_marker + @user_marker + @computer_marker,
      @computer_marker + @user_marker + @user_marker,
      @computer_marker + @user_marker + @computer_marker,
      @computer_marker + @computer_marker + @user_marker,
-     @user_marker + @computer_marker + @computer_marker]
+     @user_marker + @computer_marker + @computer_marker],
+     [@computer_marker + @computer_marker + @user_marker + @computer_marker,
+      @computer_marker + @user_marker + @computer_marker + @computer_marker,
+      @user_marker + @user_marker + @computer_marker + @user_marker,
+      @user_marker + @computer_marker + @user_marker + @user_marker,
+      @user_marker + @user_marker + @user_marker + @computer_marker + " ",
+      " " + @computer_marker + @user_marker + @user_marker + @user_marker,
+      @computer_marker + @computer_marker + @computer_marker + @user_marker + " ",
+      " " + @user_marker + @computer_marker + @computer_marker + @computer_marker]]
   end
 
   def row_array(row)
@@ -325,7 +333,13 @@ class Board5 < Board
   end
 
   def three_markers_in_a_row?(marker, row)
-    row_array(row).count(marker) == 3
+    if row_array(row).count(marker) == 3
+      row_string = row_array(row).join
+      patterns_to_ignore[1].each do |pattern|
+        return false if row_string.include?(pattern)
+      end
+      true
+    end
   end
 end
 
