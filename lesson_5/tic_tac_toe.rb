@@ -19,7 +19,7 @@ class TTTGame
                                     game_variation: @game_variation,
                                     starting_player: @starting_player,
                                     markers: { human: @user_marker,
-                                               computer: @computer_marker })
+                                               computer: @comp_marker })
   end
 
   def setup_game
@@ -60,7 +60,7 @@ class TTTGame
 
   def set_players_markers
     set_user_marker
-    set_computer_marker
+    set_comp_marker
   end
 
   def set_user_marker
@@ -74,13 +74,13 @@ class TTTGame
     @user_marker = symbol
   end
 
-  def set_computer_marker
+  def set_comp_marker
     symbol = nil
     loop do
       symbol = %w(* + o x).sample
       break unless symbol == @user_marker
     end
-    @computer_marker = symbol
+    @comp_marker = symbol
   end
 
   def play
@@ -201,7 +201,7 @@ class RoundManager
   end
 
   def format_computer_score
-    "#{computer.name} (#{board.computer_marker}):".ljust(15) +
+    "#{computer.name} (#{board.comp_marker}):".ljust(15) +
       game_score.players[:computer].to_s.rjust(15)
   end
 
@@ -209,7 +209,7 @@ class RoundManager
     if current_player == :human
       board.human_square_selection(board.user_marker)
     elsif current_player == :computer
-      board.computer_square_selection(board.computer_marker)
+      board.computer_square_selection(board.comp_marker)
     end
   end
 
@@ -224,7 +224,7 @@ class RoundManager
   def detect_winner
     case board.winning_marker
     when board.user_marker then :human
-    when board.computer_marker then :computer
+    when board.comp_marker then :computer
     else :tie
     end
   end
@@ -233,7 +233,7 @@ class RoundManager
     display_board
     case board.winning_marker
     when board.user_marker then puts "You won!"
-    when board.computer_marker then puts "Computer won!"
+    when board.comp_marker then puts "Computer won!"
     else puts "It's a tie!"
     end
   end

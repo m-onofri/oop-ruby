@@ -32,7 +32,6 @@ class Board
   def computer_square_selection(marker)
     player_choice = computer_chose_move
     @squares[player_choice].marker = marker
-    puts player_choice
   end
 
   private
@@ -189,7 +188,9 @@ class Board5 < Board
     return offensive_move unless offensive_move.nil?
     first_defensive_move = smart_choice(user_marker)
     return first_defensive_move unless first_defensive_move.nil?
-    second_defensive_move = second_defence(user_marker)
+    second_offensive_move = second_level_choice(comp_marker)
+    return second_offensive_move unless second_offensive_move.nil?
+    second_defensive_move = second_level_choice(user_marker)
     return second_defensive_move unless second_defensive_move.nil?
     basic_moves
   end
@@ -208,7 +209,7 @@ class Board5 < Board
     [7, 8, 9, 12, 14, 17, 18, 19].sample
   end
 
-  def second_defence(marker)
+  def second_level_choice(marker)
     WINNING_ROWS.each do |row|
       next unless two_markers_in_a_row?(marker, row)
       move = set_second_defence_move(row, marker)
@@ -341,6 +342,7 @@ class Board5 < Board
   def three_markers_in_a_row?(marker, row)
     if row_array(row).count(marker) == 3
       row_string = row_array(row).join
+      # fare somma dei due array e lasciare un solo loop
       patterns_to_ignore_three_markers1.each do |pattern|
         return false if row_string.include?(pattern)
       end
