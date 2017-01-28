@@ -14,14 +14,25 @@ module Displayable
     end
   end
 
+  def return_yes_no_answer
+    answer = nil
+    loop do
+      answer = gets.chomp.downcase
+      break if answer == "y" || answer == "n"
+      prompt "Invalid answer; please enter y or n"
+    end
+    answer
+  end
+
   def prompt_to_continue(request)
+    puts
     prompt request
     gets.chomp
     clear_screen
   end
 
-  def setup_title(step_num)
-    puts "SETUP GAME - STEP #{step_num}".center(60)
+  def setup_title(step_num, tot_step)
+    puts "SETUP GAME - STEP #{step_num} of #{tot_step}".center(60)
     puts
   end
 
@@ -38,8 +49,7 @@ module Displayable
     final_str = array[0..-2].join(sep)
     if array.size == 1
       final_str << last_item
-    elsif
-      final_str << last_sep + last_item
+    elsif final_str << last_sep + last_item
     end
     final_str
   end
@@ -62,8 +72,13 @@ module CoinToss
   end
 
   def valid_coin_toss_choice
-    prompt "To choose who will start the game, we toss a coin:" \
-           " (h)eads or (t)ails?"
+    puts <<-EOF
+     To choose who will start the game, we toss a coin:
+
+     - (h)eads or
+
+     - (t)ails?
+    EOF
     loop do
       case gets.chomp.downcase
       when "heads", "h" then return "heads"
@@ -75,17 +90,17 @@ module CoinToss
 
   def display_coin_toss_result(coin_toss, user_choice)
     prompt "You choose #{user_choice}."
+    puts
     if user_choice == coin_toss
       prompt "The coin toss result is #{coin_toss}."
+      puts
       prompt "You will start the game."
       return :human
     else
       prompt "The coin toss results is #{coin_toss}."
+      puts
       prompt "Computer will start the game."
       return :computer
     end
   end
 end
-
-
-

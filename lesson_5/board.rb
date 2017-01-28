@@ -131,7 +131,7 @@ class Board5 < Board
     end
   end
 
-  # rubocop:disable Metrics/AbcSize
+  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   def display
     puts ""
     puts " 1   |2    |3    |4    |5    ".center(50)
@@ -160,7 +160,7 @@ class Board5 < Board
     puts "     |     |     |     |     ".center(50)
     puts ""
   end
-  # rubocop:enable Metrics/AbcSize
+  # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
   def winning_marker
     WINNING_ROWS.each do |row|

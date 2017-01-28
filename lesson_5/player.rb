@@ -13,7 +13,7 @@ end
 class Human < Player
   def set_name
     user_name = ''
-    prompt "Before starting the game, enter your name:"
+    prompt "Please, enter your name:"
     loop do
       user_name = gets.chomp
       break if user_name =~ /^[A-Za-z]+$/
