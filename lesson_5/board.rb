@@ -13,7 +13,7 @@ class Board
   end
 
   def available_squares
-    squares.select { |_, square| !square.marked? }.keys
+    squares.select { |_, square| square.unmarked? }.keys
   end
 
   def full?
@@ -30,6 +30,7 @@ class Board
   end
 
   def computer_square_selection(marker)
+    p available_squares
     player_choice = computer_chose_move
     @squares[player_choice].marker = marker
   end
@@ -188,18 +189,19 @@ class Board5 < Board
     return offensive_move unless offensive_move.nil?
     first_defensive_move = smart_choice(user_marker)
     return first_defensive_move unless first_defensive_move.nil?
-    second_offensive_move = second_level_choice(comp_marker)
-    return second_offensive_move unless second_offensive_move.nil?
     second_defensive_move = second_level_choice(user_marker)
     return second_defensive_move unless second_defensive_move.nil?
+    second_offensive_move = second_level_choice(comp_marker)
+    return second_offensive_move unless second_offensive_move.nil?
     basic_moves
   end
 
   def basic_moves
+    alt_square = best_alt
     if squares[13].unmarked?
       13
-    elsif squares[best_alt].unmarked?
-      best_alt
+    elsif squares[alt_square].unmarked?
+      alt_square
     else
       available_squares.sample
     end
@@ -215,7 +217,7 @@ class Board5 < Board
       move = set_second_defence_move(row, marker)
       return move unless move.nil?
       row.each do |square|
-        return square if squares[square].marker == Square::EMPTY_SQUARE
+        return square if squares[square].unmarked?
       end
     end
     nil
@@ -257,7 +259,7 @@ class Board5 < Board
       move = set_smart_choice_move(row, marker)
       return move unless move.nil?
       row.each do |square|
-        return square if squares[square].marker == Square::EMPTY_SQUARE
+        return square if squares[square].unmarked?
       end
     end
     nil
@@ -313,26 +315,63 @@ class Board5 < Board
   end
 
   def patterns_to_ignore_two_markers
-    [@user_marker + @comp_marker + @user_marker,
-     @user_marker + @user_marker + @comp_marker,
-     @comp_marker + @user_marker + @user_marker,
-     @comp_marker + @user_marker + @comp_marker,
-     @comp_marker + @comp_marker + @user_marker,
-     @user_marker + @comp_marker + @comp_marker]
+    asymmetric = [@user_marker + @comp_marker + @user_marker,
+                  @comp_marker + @user_marker + @comp_marker]
+    patt_1 = patterns_to_ignore_two_markers_1
+    patt_2 = patt_1.map{|p| p.chars.reverse.join}
+    patt_3 = patterns_to_ignore_two_markers_2
+    patt_4 = patt_3.map{|p| p.chars.reverse.join}
+    asymmetric + patt_1 + patt_2 + patt_3 + patt_4
   end
 
-  def patterns_to_ignore_three_markers1
-    [@comp_marker + @comp_marker + @user_marker + @comp_marker,
-     @comp_marker + @user_marker + @comp_marker + @comp_marker,
-     @user_marker + @user_marker + @comp_marker + @user_marker,
-     @user_marker + @comp_marker + @user_marker + @user_marker]
+  def patterns_to_ignore_two_markers_1
+    [@user_marker + @user_marker + @comp_marker,
+     @comp_marker + @comp_marker + @user_marker]
   end
 
-  def patterns_to_ignore_three_markers2
-    [@user_marker + @user_marker + @user_marker + @comp_marker + " ",
-     " " + @comp_marker + @user_marker + @user_marker + @user_marker,
-     @comp_marker + @comp_marker + @comp_marker + @user_marker + " ",
-     " " + @user_marker + @comp_marker + @comp_marker + @comp_marker]
+  def patterns_to_ignore_two_markers_2
+    [@user_marker + " " + @user_marker + @comp_marker,
+     @user_marker + " " + @comp_marker + @user_marker,
+     @user_marker + " " + @comp_marker + @comp_marker,
+     @comp_marker + " " + @user_marker + @user_marker,
+     @comp_marker + " " + @user_marker + @comp_marker, 
+     @comp_marker + " " + @comp_marker + @user_marker]
+  end
+
+  def patterns_to_ignore_three_markers_1
+    [" " + @comp_marker + @user_marker + @user_marker + @user_marker,
+     " " + @user_marker + @comp_marker + @comp_marker + @comp_marker, 
+     @user_marker + @user_marker + @user_marker + @comp_marker + " ",
+     @comp_marker + @comp_marker + @comp_marker + @user_marker + " "]
+  end
+
+  def patterns_to_ignore_three_markers_2
+    [@comp_marker + @comp_marker + " " + @user_marker + @comp_marker,
+     @user_marker + @user_marker + " " + @comp_marker + @user_marker,
+     @user_marker + @user_marker + @comp_marker + " " + @user_marker,
+     @comp_marker + @comp_marker + @user_marker + " " + @comp_marker,
+     @user_marker + @comp_marker + @user_marker + " " + @user_marker,
+     @comp_marker + @user_marker + @user_marker + " " + @user_marker,
+     @comp_marker + @user_marker + @comp_marker + " " + @comp_marker,
+     @user_marker + @comp_marker + @comp_marker + " " + @comp_marker]
+  end
+
+  def patterns_to_ignore_three_markers_3
+    [@comp_marker + @comp_marker + " " + @user_marker + @comp_marker,
+     @user_marker + @user_marker + " " + @comp_marker + @user_marker,
+     @user_marker + @comp_marker + " " + @comp_marker + @comp_marker,
+     @comp_marker + @user_marker + " " + @user_marker + @user_marker,
+     @comp_marker + @comp_marker + @user_marker + @comp_marker,
+     @user_marker + @user_marker + @comp_marker + @user_marker]
+  end
+
+  def patterns_to_ignore_three_markers
+    patt_1 = patterns_to_ignore_three_markers_1
+    patt_3 = patterns_to_ignore_three_markers_2
+    patt_4 = patt_3.map{|p| p.chars.reverse.join}
+    patt_5 = patterns_to_ignore_three_markers_3
+    patt_6 = patt_5.map{|p| p.chars.reverse.join}
+    patt_1 + patt_3 + patt_4 + patt_5 + patt_6
   end
 
   def row_array(row)
@@ -342,11 +381,7 @@ class Board5 < Board
   def three_markers_in_a_row?(marker, row)
     if row_array(row).count(marker) == 3
       row_string = row_array(row).join
-      # fare somma dei due array e lasciare un solo loop
-      patterns_to_ignore_three_markers1.each do |pattern|
-        return false if row_string.include?(pattern)
-      end
-      patterns_to_ignore_three_markers2.each do |pattern|
+      patterns_to_ignore_three_markers.each do |pattern|
         return false if row_string.include?(pattern)
       end
       true

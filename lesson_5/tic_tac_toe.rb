@@ -142,34 +142,6 @@ class TTTGame
     prompt_to_continue("Press enter to start the game")
   end
 
-  def change_setup_data
-    puts <<-EOF
-     What do you want to modify?
-
-     1 - Name: #{@human.name}
-     2 – Board: #{@game_variation}
-     3 - Max score: #{@game_score.max_points}
-     4 - Symbol: #{@user_marker}
-     5 - Starting player: #{@starting_player}
-     6 - All the data above
-
-     Enter a number from 1 to 6 to select an option.
-    EOF
-    answer = nil
-    loop do
-      answer = gets.chomp.to_i
-      break if (1..6).to_a.include?(answer)
-    end
-    case answer
-    when 1 then setup_players_names
-    when 2 then setup_game_variation
-    when 3 then setup_max_score
-    when 4 then setup_players_markers
-    when 5 then setup_starting_player
-    when 6 then setup_game
-    end
-  end
-
   def setup_resume
     puts <<-EOF
      These are your set_up data:
@@ -182,6 +154,46 @@ class TTTGame
 
      Do you confirm them?(y/n)
     EOF
+  end
+
+  def change_setup_data
+    change_setup
+    option = check_valid_option
+    select_option(option)
+  end
+
+  def change_setup
+    puts <<-EOF
+     What do you want to modify?
+
+     1 - Name: #{@human.name}
+     2 – Board: #{@game_variation}
+     3 - Max score: #{@game_score.max_points}
+     4 - Symbol: #{@user_marker}
+     5 - Starting player: #{@starting_player}
+
+     Enter a number from 1 to 6 to select an option.
+    EOF
+  end
+
+  def check_valid_option
+    answer = nil
+    loop do
+      answer = gets.chomp.to_i
+      break if (1..6).to_a.include?(answer)
+      "Please choose a valid option from 1 to 6"
+    end
+    answer
+  end
+
+  def select_option(option)
+    case option
+    when 1 then setup_players_names
+    when 2 then setup_game_variation
+    when 3 then setup_max_score
+    when 4 then setup_players_markers
+    when 5 then setup_starting_player
+    end
   end
 
   def initialize_game_rounds
