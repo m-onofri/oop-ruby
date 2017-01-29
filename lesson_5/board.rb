@@ -135,30 +135,35 @@ class Board5 < Board
   # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   def display
     puts ""
-    puts " 1   |2    |3    |4    |5    ".center(50)
-    puts "  #{squares[1]}  |  #{squares[2]}  |  #{squares[3]}  |" \
-         "  #{squares[4]}  |  #{squares[5]}  ".center(50)
-    puts "     |     |     |     |     ".center(50)
-    puts "-----+-----+-----+-----+-----".center(50)
-    puts " 6   |7    |8    |9    |10   ".center(50)
-    puts "  #{squares[6]}  |  #{squares[7]}  |  #{squares[8]}  |" \
-         "  #{squares[9]}  |  #{squares[10]}  ".center(50)
-    puts "     |     |     |     |     ".center(50)
-    puts "-----+-----+-----+-----+-----".center(50)
-    puts " 11  |12   |13   |14   |15   ".center(50)
-    puts "  #{squares[11]}  |  #{squares[12]}  |  #{squares[13]}  |" \
-         "  #{squares[14]}  |  #{squares[15]}  ".center(50)
-    puts "     |     |     |     |     ".center(50)
-    puts "-----+-----+-----+-----+-----".center(50)
-    puts " 16  |17   |18   |19   |20   ".center(50)
-    puts "  #{squares[16]}  |  #{squares[17]}  |  #{squares[18]}  |" \
-         "  #{squares[19]}  |  #{squares[20]}  ".center(50)
-    puts "     |     |     |     |     ".center(50)
-    puts "-----+-----+-----+-----+-----".center(50)
-    puts " 21  |22   |23   |24   |25   ".center(50)
-    puts "  #{squares[21]}  |  #{squares[22]}  |  #{squares[23]}  |" \
-         "  #{squares[24]}  |  #{squares[25]}  ".center(50)
-    puts "     |     |     |     |     ".center(50)
+    puts " 1     |2      |3      |4      |5      ".center(60)
+    puts "       |       |       |       |       ".center(60)
+    puts "   #{squares[1]}   |   #{squares[2]}   |   #{squares[3]}   |" \
+         "   #{squares[4]}   |   #{squares[5]}   ".center(60)
+    puts "       |       |       |       |       ".center(60)
+    puts "-------+-------+-------+-------+-------".center(60)
+    puts " 6     |7      |8      |9      |10     ".center(60)
+    puts "       |       |       |       |       ".center(60)
+    puts "   #{squares[6]}   |   #{squares[7]}   |   #{squares[8]}   |" \
+         "   #{squares[9]}   |   #{squares[10]}   ".center(60)
+    puts "       |       |       |       |       ".center(60)
+    puts "-------+-------+-------+-------+-------".center(60)
+    puts " 11    |12     |13     |14     |15     ".center(60)
+    puts "       |       |       |       |       ".center(60)
+    puts "   #{squares[11]}   |   #{squares[12]}   |   #{squares[13]}   |" \
+         "   #{squares[14]}   |   #{squares[15]}   ".center(60)
+    puts "       |       |       |       |       ".center(60)
+    puts "-------+-------+-------+-------+-------".center(60)
+    puts " 16    |17     |18     |19     |20     ".center(60)
+    puts "       |       |       |       |       ".center(60)
+    puts "   #{squares[16]}   |   #{squares[17]}   |   #{squares[18]}   |" \
+         "   #{squares[19]}   |   #{squares[20]}   ".center(60)
+    puts "       |       |       |       |       ".center(60)
+    puts "-------+-------+-------+-------+-------".center(60)
+    puts " 21    |22     |23     |24     |25     ".center(60)
+    puts "       |       |       |       |       ".center(60)
+    puts "   #{squares[21]}   |   #{squares[22]}   |   #{squares[23]}   |" \
+         "   #{squares[24]}   |   #{squares[25]}   ".center(60)
+    puts "       |       |       |       |       ".center(60)
     puts ""
   end
   # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
@@ -189,10 +194,10 @@ class Board5 < Board
     return offensive_move unless offensive_move.nil?
     first_defensive_move = smart_choice(user_marker)
     return first_defensive_move unless first_defensive_move.nil?
-    second_defensive_move = second_level_choice(user_marker)
-    return second_defensive_move unless second_defensive_move.nil?
     second_offensive_move = second_level_choice(comp_marker)
     return second_offensive_move unless second_offensive_move.nil?
+    second_defensive_move = second_level_choice(user_marker)
+    return second_defensive_move unless second_defensive_move.nil?
     basic_moves
   end
 
@@ -315,13 +320,16 @@ class Board5 < Board
   end
 
   def patterns_to_ignore_two_markers
-    asymmetric = [@user_marker + @comp_marker + @user_marker,
-                  @comp_marker + @user_marker + @comp_marker]
-    patt_1 = patterns_to_ignore_two_markers_1
-    patt_2 = patt_1.map{|p| p.chars.reverse.join}
-    patt_3 = patterns_to_ignore_two_markers_2
-    patt_4 = patt_3.map{|p| p.chars.reverse.join}
-    asymmetric + patt_1 + patt_2 + patt_3 + patt_4
+    patt1 = patterns_to_ignore_two_markers_1
+    patt2 = patt1.map { |p| p.chars.reverse.join }
+    patt3 = patterns_to_ignore_two_markers_2
+    patt4 = patt3.map { |p| p.chars.reverse.join }
+    asymmetric_pattern + patt1 + patt2 + patt3 + patt4
+  end
+
+  def asymmetric_pattern
+    [@user_marker + @comp_marker + @user_marker,
+     @comp_marker + @user_marker + @comp_marker]
   end
 
   def patterns_to_ignore_two_markers_1
@@ -334,13 +342,13 @@ class Board5 < Board
      @user_marker + " " + @comp_marker + @user_marker,
      @user_marker + " " + @comp_marker + @comp_marker,
      @comp_marker + " " + @user_marker + @user_marker,
-     @comp_marker + " " + @user_marker + @comp_marker, 
+     @comp_marker + " " + @user_marker + @comp_marker,
      @comp_marker + " " + @comp_marker + @user_marker]
   end
 
   def patterns_to_ignore_three_markers_1
     [" " + @comp_marker + @user_marker + @user_marker + @user_marker,
-     " " + @user_marker + @comp_marker + @comp_marker + @comp_marker, 
+     " " + @user_marker + @comp_marker + @comp_marker + @comp_marker,
      @user_marker + @user_marker + @user_marker + @comp_marker + " ",
      @comp_marker + @comp_marker + @comp_marker + @user_marker + " "]
   end
@@ -349,29 +357,40 @@ class Board5 < Board
     [@comp_marker + @comp_marker + " " + @user_marker + @comp_marker,
      @user_marker + @user_marker + " " + @comp_marker + @user_marker,
      @user_marker + @user_marker + @comp_marker + " " + @user_marker,
-     @comp_marker + @comp_marker + @user_marker + " " + @comp_marker,
-     @user_marker + @comp_marker + @user_marker + " " + @user_marker,
-     @comp_marker + @user_marker + @user_marker + " " + @user_marker,
-     @comp_marker + @user_marker + @comp_marker + " " + @comp_marker,
-     @user_marker + @comp_marker + @comp_marker + " " + @comp_marker]
+     @comp_marker + @comp_marker + @user_marker + " " + @comp_marker]
   end
 
   def patterns_to_ignore_three_markers_3
     [@comp_marker + @comp_marker + " " + @user_marker + @comp_marker,
      @user_marker + @user_marker + " " + @comp_marker + @user_marker,
      @user_marker + @comp_marker + " " + @comp_marker + @comp_marker,
-     @comp_marker + @user_marker + " " + @user_marker + @user_marker,
-     @comp_marker + @comp_marker + @user_marker + @comp_marker,
+     @comp_marker + @user_marker + " " + @user_marker + @user_marker]
+  end
+
+  def patterns_to_ignore_three_markers_4
+    [@user_marker + @comp_marker + @user_marker + " " + @user_marker,
+     @comp_marker + @user_marker + @user_marker + " " + @user_marker,
+     @comp_marker + @user_marker + @comp_marker + " " + @comp_marker,
+     @user_marker + @comp_marker + @comp_marker + " " + @comp_marker]
+  end
+
+  def patterns_to_ignore_three_markers_5
+    [@comp_marker + @comp_marker + @user_marker + @comp_marker,
      @user_marker + @user_marker + @comp_marker + @user_marker]
   end
 
+  def total_patterns_three_markers
+    patterns_to_ignore_three_markers_2 +
+      patterns_to_ignore_three_markers_3 +
+      patterns_to_ignore_three_markers_4 +
+      patterns_to_ignore_three_markers_5
+  end
+
   def patterns_to_ignore_three_markers
-    patt_1 = patterns_to_ignore_three_markers_1
-    patt_3 = patterns_to_ignore_three_markers_2
-    patt_4 = patt_3.map{|p| p.chars.reverse.join}
-    patt_5 = patterns_to_ignore_three_markers_3
-    patt_6 = patt_5.map{|p| p.chars.reverse.join}
-    patt_1 + patt_3 + patt_4 + patt_5 + patt_6
+    patt1 = patterns_to_ignore_three_markers_1
+    patterns = total_patterns_three_markers
+    rev_patterns = patterns.map { |p| p.chars.reverse.join }
+    patt1 + patterns + rev_patterns
   end
 
   def row_array(row)
