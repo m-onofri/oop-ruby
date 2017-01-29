@@ -36,15 +36,16 @@ class TTTGame
   def game_rules
     puts <<-EOF
      Welcome to the Tic Tac Toe game!"
-     Tic Tac Toe is a 2-player board game played on a 3x3 grid. Players
-     take turns marking a square. The first player to mark 3 squares in
-     a row wins.
+     Here you can play with the traditional version of Tic Tac Toe game,
+     or with an alternative version of this game on a 5x5 grid.
 
-     Before starting to play, you must enter the following data:
-     - your name
-     - the number of points one player have to reach to win the game
-     - who will start the game
-     - what symbol you want to use
+     The traditional version is a 2-player board game played on a 3x3 grid.
+     Players take turns marking a square. The first player to mark 3 squares
+     in a row wins.
+
+     The alternative version is a 2-player board game played on a 5x5 grid.
+     Players take turns marking a square. In this case, the first player to
+     mark 4 squares in a row wins. 
     EOF
   end
 
@@ -76,9 +77,9 @@ class TTTGame
     puts <<-EOF
      Available game variations:
 
-     - enter 1 to play with a 3x3 board
+     - enter 1 to play with a 3x3 board (mark 3 squares in a row to win)
 
-     - enter 2 to play with a 5x5 board
+     - enter 2 to play with a 5x5 board (mark 4 squares in a row to win)
     EOF
     loop do
       case gets.chomp
@@ -157,6 +158,7 @@ class TTTGame
   end
 
   def change_setup_data
+    clear_screen
     change_setup
     option = check_valid_option
     select_option(option)
@@ -172,7 +174,7 @@ class TTTGame
      4 - Symbol: #{@user_marker}
      5 - Starting player: #{@starting_player}
 
-     Enter a number from 1 to 6 to select an option.
+     Enter a number from 1 to 5 to select an option.
     EOF
   end
 

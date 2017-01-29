@@ -1,18 +1,3 @@
-class String
-  # colorization
-  def colorize(color_code)
-    "\e[#{color_code}m#{self}\e[0m"
-  end
-
-  def red
-    colorize(31)
-  end
-
-  def green
-    colorize(32)
-  end
-end
-
 module Displayable
   def prompt(string)
     puts "==> #{string}"
@@ -112,7 +97,7 @@ module CoinToss
       prompt "You will start the game."
       return :human
     else
-      prompt "The coin toss results is #{coin_toss}."
+      prompt "The coin toss result is #{coin_toss}."
       puts
       prompt "Computer will start the game."
       return :computer
