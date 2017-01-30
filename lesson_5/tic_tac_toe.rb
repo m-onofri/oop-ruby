@@ -2,7 +2,6 @@ require_relative 'modules'
 require_relative 'board'
 require_relative 'player'
 require_relative 'score'
-require 'pry'
 
 class TTTGame
   include Displayable
@@ -45,7 +44,7 @@ class TTTGame
 
      The alternative version is a 2-player board game played on a 5x5 grid.
      Players take turns marking a square. In this case, the first player to
-     mark 4 squares in a row wins. 
+     mark 4 squares in a row wins.
     EOF
   end
 
@@ -161,7 +160,7 @@ class TTTGame
     clear_screen
     change_setup
     option = check_valid_option
-    select_option(option)
+    select_setup_option(option)
   end
 
   def change_setup
@@ -188,7 +187,7 @@ class TTTGame
     answer
   end
 
-  def select_option(option)
+  def select_setup_option(option)
     case option
     when 1 then setup_players_names
     when 2 then setup_game_variation
@@ -311,7 +310,7 @@ class RoundManager
   end
 
   def detect_winner
-    case board.winning_marker
+    case board.winner_marker
     when board.user_marker then :human
     when board.comp_marker then :computer
     else :tie
@@ -320,9 +319,9 @@ class RoundManager
 
   def display_result
     display_board
-    case board.winning_marker
-    when board.user_marker then puts "You won!"
-    when board.comp_marker then puts "Computer won!"
+    case board.winner_marker
+    when board.user_marker then puts "YOU WON!".center(50)
+    when board.comp_marker then puts "#{@computer.name.upcase} WON!".center(50)
     else puts "It's a tie!"
     end
   end

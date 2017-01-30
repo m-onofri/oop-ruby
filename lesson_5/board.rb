@@ -1,5 +1,4 @@
 require_relative 'modules'
-require 'pry'
 
 class Board
   include Displayable
@@ -12,6 +11,16 @@ class Board
     reset_squares
   end
 
+  def human_square_selection(marker)
+    player_choice = human_chose_move
+    @squares[player_choice].marker = marker
+  end
+
+  def computer_square_selection(marker)
+    player_choice = computer_chose_move
+    @squares[player_choice].marker = marker
+  end
+
   def available_squares
     squares.select { |_, square| square.unmarked? }.keys
   end
@@ -21,18 +30,7 @@ class Board
   end
 
   def someone_won?
-    !!winning_marker
-  end
-
-  def human_square_selection(marker)
-    player_choice = human_chose_move
-    @squares[player_choice].marker = marker
-  end
-
-  def computer_square_selection(marker)
-    p available_squares
-    player_choice = computer_chose_move
-    @squares[player_choice].marker = marker
+    !!winner_marker
   end
 
   private
@@ -53,12 +51,6 @@ class Board3 < Board
   WINNING_ROWS = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7],
                   [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]].freeze
 
-  def reset_squares
-    @squares = (1..9).each_with_object({}) do |num, hash|
-      hash[num] = Square.new
-    end
-  end
-
   # rubocop:disable Metrics/AbcSize
   def display
     puts ""
@@ -77,7 +69,13 @@ class Board3 < Board
   end
   # rubocop:enable Metrics/AbcSize
 
-  def winning_marker
+  def reset_squares
+    @squares = (1..9).each_with_object({}) do |num, hash|
+      hash[num] = Square.new
+    end
+  end
+
+  def winner_marker
     WINNING_ROWS.each do |row|
       squares = @squares.values_at(*row)
       if three_identical_markers?(squares)
@@ -86,6 +84,8 @@ class Board3 < Board
     end
     nil
   end
+
+  private
 
   def three_identical_markers?(squares)
     markers = squares.select(&:marked?).collect(&:marker)
@@ -126,12 +126,6 @@ class Board5 < Board
                   [5, 9, 13, 17, 21], [4, 8, 12, 16],
                   [10, 14, 18, 22], [2, 8, 14, 20], [6, 12, 18, 24]].freeze
 
-  def reset_squares
-    @squares = (1..25).each_with_object({}) do |num, hash|
-      hash[num] = Square.new
-    end
-  end
-
   # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   def display
     puts ""
@@ -168,7 +162,13 @@ class Board5 < Board
   end
   # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
-  def winning_marker
+  def reset_squares
+    @squares = (1..25).each_with_object({}) do |num, hash|
+      hash[num] = Square.new
+    end
+  end
+
+  def winner_marker
     WINNING_ROWS.each do |row|
       squares = @squares.values_at(*row)
       next unless four_identical_markers?(squares)
@@ -199,63 +199,6 @@ class Board5 < Board
     second_defensive_move = second_level_choice(user_marker)
     return second_defensive_move unless second_defensive_move.nil?
     basic_moves
-  end
-
-  def basic_moves
-    alt_square = best_alt
-    if squares[13].unmarked?
-      13
-    elsif squares[alt_square].unmarked?
-      alt_square
-    else
-      available_squares.sample
-    end
-  end
-
-  def best_alt
-    [7, 8, 9, 12, 14, 17, 18, 19].sample
-  end
-
-  def second_level_choice(marker)
-    WINNING_ROWS.each do |row|
-      next unless two_markers_in_a_row?(marker, row)
-      move = set_second_defence_move(row, marker)
-      return move unless move.nil?
-      row.each do |square|
-        return square if squares[square].unmarked?
-      end
-    end
-    nil
-  end
-
-  def set_second_defence_move(row, marker)
-    row_string = row_array(row).join
-    if row_string.include?(marker * 2)
-      move = move_for_two_consecutive_marker(row_string, marker, row)
-      return move unless move.nil?
-    elsif row_string.include?(marker + " " + marker)
-      index = row_string.index(marker + " " + marker)
-      return row[index + 1]
-    end
-    nil
-  end
-
-  def move_for_two_consecutive_marker(row_string, marker, row)
-    index = row_string.index(marker * 2)
-    if previous_square_available?(index, row)
-      return row[index - 1]
-    elsif next_square_available?(index, row, 2)
-      return row[index + 2]
-    end
-    nil
-  end
-
-  def previous_square_available?(index, row)
-    index.nonzero? && squares[row[index - 1]].unmarked?
-  end
-
-  def next_square_available?(index, row, num)
-    (index + num) < row.size && squares[row[index + num]].unmarked?
   end
 
   def smart_choice(marker)
@@ -295,16 +238,103 @@ class Board5 < Board
     string.include?(pattern)
   end
 
-  def find_index(string, pattern)
-    string.index(pattern)
-  end
-
   def move_for_three_consecutive_marker(row_string, marker, row)
     square_index = row_string.index(marker * 3)
     if previous_square_available?(square_index, row)
       return row[square_index - 1]
     elsif next_square_available?(square_index, row, 3)
       return row[square_index + 3]
+    end
+    nil
+  end
+
+  def three_markers_in_a_row?(marker, row)
+    if row_array(row).count(marker) == 3
+      row_string = row_array(row).join
+      patterns_to_ignore_three_markers.each do |pattern|
+        return false if row_string.include?(pattern)
+      end
+      true
+    end
+  end
+
+  def patterns_to_ignore_three_markers
+    patt1 = patterns_to_ignore_three_markers_1
+    patterns = total_patterns_three_markers
+    rev_patterns = patterns.map { |p| p.chars.reverse.join }
+    patt1 + patterns + rev_patterns
+  end
+
+  def patterns_to_ignore_three_markers_1
+    [" " + @comp_marker + @user_marker + @user_marker + @user_marker,
+     " " + @user_marker + @comp_marker + @comp_marker + @comp_marker,
+     @user_marker + @user_marker + @user_marker + @comp_marker + " ",
+     @comp_marker + @comp_marker + @comp_marker + @user_marker + " "]
+  end
+
+  def total_patterns_three_markers
+    patterns_to_ignore_three_markers_2 +
+      patterns_to_ignore_three_markers_3 +
+      patterns_to_ignore_three_markers_4 +
+      patterns_to_ignore_three_markers_5
+  end
+
+  def patterns_to_ignore_three_markers_2
+    [@comp_marker + @comp_marker + " " + @user_marker + @comp_marker,
+     @user_marker + @user_marker + " " + @comp_marker + @user_marker,
+     @user_marker + @user_marker + @comp_marker + " " + @user_marker,
+     @comp_marker + @comp_marker + @user_marker + " " + @comp_marker]
+  end
+
+  def patterns_to_ignore_three_markers_3
+    [@comp_marker + @comp_marker + " " + @user_marker + @comp_marker,
+     @user_marker + @user_marker + " " + @comp_marker + @user_marker,
+     @user_marker + @comp_marker + " " + @comp_marker + @comp_marker,
+     @comp_marker + @user_marker + " " + @user_marker + @user_marker]
+  end
+
+  def patterns_to_ignore_three_markers_4
+    [@user_marker + @comp_marker + @user_marker + " " + @user_marker,
+     @comp_marker + @user_marker + @user_marker + " " + @user_marker,
+     @comp_marker + @user_marker + @comp_marker + " " + @comp_marker,
+     @user_marker + @comp_marker + @comp_marker + " " + @comp_marker]
+  end
+
+  def patterns_to_ignore_three_markers_5
+    [@comp_marker + @comp_marker + @user_marker + @comp_marker,
+     @user_marker + @user_marker + @comp_marker + @user_marker]
+  end
+
+  def second_level_choice(marker)
+    WINNING_ROWS.each do |row|
+      next unless two_markers_in_a_row?(marker, row)
+      move = set_second_level_move(row, marker)
+      return move unless move.nil?
+      row.each do |square|
+        return square if squares[square].unmarked?
+      end
+    end
+    nil
+  end
+
+  def set_second_level_move(row, marker)
+    row_string = row_array(row).join
+    if row_string.include?(marker * 2)
+      move = move_for_two_consecutive_marker(row_string, marker, row)
+      return move unless move.nil?
+    elsif row_string.include?(marker + " " + marker)
+      index = row_string.index(marker + " " + marker)
+      return row[index + 1]
+    end
+    nil
+  end
+
+  def move_for_two_consecutive_marker(row_string, marker, row)
+    index = row_string.index(marker * 2)
+    if previous_square_available?(index, row)
+      return row[index - 1]
+    elsif next_square_available?(index, row, 2)
+      return row[index + 2]
     end
     nil
   end
@@ -346,65 +376,35 @@ class Board5 < Board
      @comp_marker + " " + @comp_marker + @user_marker]
   end
 
-  def patterns_to_ignore_three_markers_1
-    [" " + @comp_marker + @user_marker + @user_marker + @user_marker,
-     " " + @user_marker + @comp_marker + @comp_marker + @comp_marker,
-     @user_marker + @user_marker + @user_marker + @comp_marker + " ",
-     @comp_marker + @comp_marker + @comp_marker + @user_marker + " "]
+  def basic_moves
+    alt_square = best_choice
+    if squares[13].unmarked?
+      13
+    elsif squares[alt_square].unmarked?
+      alt_square
+    else
+      available_squares.sample
+    end
   end
 
-  def patterns_to_ignore_three_markers_2
-    [@comp_marker + @comp_marker + " " + @user_marker + @comp_marker,
-     @user_marker + @user_marker + " " + @comp_marker + @user_marker,
-     @user_marker + @user_marker + @comp_marker + " " + @user_marker,
-     @comp_marker + @comp_marker + @user_marker + " " + @comp_marker]
+  def best_choice
+    [7, 8, 9, 12, 14, 17, 18, 19].sample
   end
 
-  def patterns_to_ignore_three_markers_3
-    [@comp_marker + @comp_marker + " " + @user_marker + @comp_marker,
-     @user_marker + @user_marker + " " + @comp_marker + @user_marker,
-     @user_marker + @comp_marker + " " + @comp_marker + @comp_marker,
-     @comp_marker + @user_marker + " " + @user_marker + @user_marker]
+  def previous_square_available?(index, row)
+    index.nonzero? && squares[row[index - 1]].unmarked?
   end
 
-  def patterns_to_ignore_three_markers_4
-    [@user_marker + @comp_marker + @user_marker + " " + @user_marker,
-     @comp_marker + @user_marker + @user_marker + " " + @user_marker,
-     @comp_marker + @user_marker + @comp_marker + " " + @comp_marker,
-     @user_marker + @comp_marker + @comp_marker + " " + @comp_marker]
+  def next_square_available?(index, row, num)
+    (index + num) < row.size && squares[row[index + num]].unmarked?
   end
 
-  def patterns_to_ignore_three_markers_5
-    [@comp_marker + @comp_marker + @user_marker + @comp_marker,
-     @user_marker + @user_marker + @comp_marker + @user_marker]
-  end
-
-  def total_patterns_three_markers
-    patterns_to_ignore_three_markers_2 +
-      patterns_to_ignore_three_markers_3 +
-      patterns_to_ignore_three_markers_4 +
-      patterns_to_ignore_three_markers_5
-  end
-
-  def patterns_to_ignore_three_markers
-    patt1 = patterns_to_ignore_three_markers_1
-    patterns = total_patterns_three_markers
-    rev_patterns = patterns.map { |p| p.chars.reverse.join }
-    patt1 + patterns + rev_patterns
+  def find_index(string, pattern)
+    string.index(pattern)
   end
 
   def row_array(row)
     squares.values_at(*row).map(&:marker)
-  end
-
-  def three_markers_in_a_row?(marker, row)
-    if row_array(row).count(marker) == 3
-      row_string = row_array(row).join
-      patterns_to_ignore_three_markers.each do |pattern|
-        return false if row_string.include?(pattern)
-      end
-      true
-    end
   end
 end
 
