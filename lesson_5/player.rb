@@ -16,7 +16,7 @@ class Human < Player
     prompt "Please, enter your name:"
     loop do
       user_name = gets.chomp
-      break if user_name =~ /^[A-Za-z]+$/
+      break if user_name =~ /^[A-Za-z0-9]+$/
       prompt "Please enter a valid name:"
     end
     user_name

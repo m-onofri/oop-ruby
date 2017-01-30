@@ -89,17 +89,17 @@ module CoinToss
   end
 
   def display_coin_toss_result(coin_toss, user_choice)
-    prompt "You choose #{user_choice}."
+    prompt "You choose #{user_choice.upcase}."
     puts
     if user_choice == coin_toss
-      prompt "The coin toss result is #{coin_toss}."
+      prompt "The coin toss result is #{coin_toss.upcase}."
       puts
-      prompt "You will start the game."
+      prompt "YOU will start the game."
       return :human
     else
-      prompt "The coin toss result is #{coin_toss}."
+      prompt "The coin toss result is #{coin_toss.upcase}."
       puts
-      prompt "Computer will start the game."
+      prompt "COMPUTER will start the game."
       return :computer
     end
   end

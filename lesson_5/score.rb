@@ -16,7 +16,7 @@ class Score
     loop do
       max_points = gets.chomp
       break if integer?(max_points) && max_points.to_i.positive?
-      prompt "Please enter a valid number of points:"
+      prompt "Please enter an integer number greater than zero:"
     end
     max_points.to_i
   end

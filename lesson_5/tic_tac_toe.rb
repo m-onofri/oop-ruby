@@ -181,8 +181,8 @@ class TTTGame
     answer = nil
     loop do
       answer = gets.chomp.to_i
-      break if (1..6).to_a.include?(answer)
-      "Please choose a valid option from 1 to 6"
+      break if (1..5).to_a.include?(answer)
+      puts "Please choose a valid option from 1 to 5"
     end
     answer
   end
@@ -215,6 +215,7 @@ class TTTGame
   end
 
   def final_result
+    puts ""
     case game_score.player_at_max_point
     when :human
       puts "YOU WON!".center(50)
@@ -260,8 +261,8 @@ class RoundManager
         break if board.full? || board.someone_won?
       end
       round_end_manager
-      break if someone_reached_max_points?
       prompt_to_continue("Press enter to continue the game")
+      break if someone_reached_max_points?
     end
   end
 
