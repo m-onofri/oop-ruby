@@ -14,6 +14,11 @@ module Displayable
     end
   end
 
+  def setup_title(step_num, tot_step)
+    puts "SETUP GAME - STEP #{step_num} of #{tot_step}".center(60)
+    puts
+  end
+
   def return_yes_no_answer
     answer = nil
     loop do
@@ -29,11 +34,6 @@ module Displayable
     prompt request
     gets.chomp
     clear_screen
-  end
-
-  def setup_title(step_num, tot_step)
-    puts "SETUP GAME - STEP #{step_num} of #{tot_step}".center(60)
-    puts
   end
 
   def clear_screen
@@ -52,6 +52,15 @@ module Displayable
     elsif final_str << last_sep + last_item
     end
     final_str
+  end
+
+  def play_again?
+    prompt "Would you like to play again?(y/n)"
+    check_yes_no_answer
+  end
+
+  def display_goodbye_message
+    prompt "Thanks for playing Tic Tac Toe. Goodbye!"
   end
 end
 
@@ -102,5 +111,81 @@ module CoinToss
       prompt "COMPUTER will start the game."
       return :computer
     end
+  end
+end
+
+module PatternBoard5x5
+  def patterns_to_ignore_three_markers(user_marker, comp_marker)
+    patt1 = patterns_to_ignore_three_markers_1(user_marker, comp_marker)
+    patterns = total_patterns_three_markers(user_marker, comp_marker)
+    rev_patterns = patterns.map { |p| p.reverse }
+    patt1 + patterns + rev_patterns
+  end
+
+  def patterns_to_ignore_three_markers_1(user_marker, comp_marker)
+    [" " + comp_marker + user_marker + user_marker + user_marker,
+     " " + user_marker + comp_marker + comp_marker + comp_marker,
+     user_marker + user_marker + user_marker + comp_marker + " ",
+     comp_marker + comp_marker + comp_marker + user_marker + " "]
+  end
+
+  def total_patterns_three_markers(user_marker, comp_marker)
+    patterns_to_ignore_three_markers_2(user_marker, comp_marker) +
+      patterns_to_ignore_three_markers_3(user_marker, comp_marker) +
+      patterns_to_ignore_three_markers_4(user_marker, comp_marker) +
+      patterns_to_ignore_three_markers_5(user_marker, comp_marker)
+  end
+
+  def patterns_to_ignore_three_markers_2(user_marker, comp_marker)
+    [comp_marker + comp_marker + " " + user_marker + comp_marker,
+     user_marker + user_marker + " " + comp_marker + user_marker,
+     user_marker + user_marker + comp_marker + " " + user_marker,
+     comp_marker + comp_marker + user_marker + " " + comp_marker]
+  end
+
+  def patterns_to_ignore_three_markers_3(user_marker, comp_marker)
+    [comp_marker + comp_marker + " " + user_marker + comp_marker,
+     user_marker + user_marker + " " + comp_marker + user_marker,
+     user_marker + comp_marker + " " + comp_marker + comp_marker,
+     comp_marker + user_marker + " " + user_marker + user_marker]
+  end
+
+  def patterns_to_ignore_three_markers_4(user_marker, comp_marker)
+    [user_marker + comp_marker + user_marker + " " + user_marker,
+     comp_marker + user_marker + user_marker + " " + user_marker,
+     comp_marker + user_marker + comp_marker + " " + comp_marker,
+     user_marker + comp_marker + comp_marker + " " + comp_marker]
+  end
+
+  def patterns_to_ignore_three_markers_5(user_marker, comp_marker)
+    [comp_marker + comp_marker + user_marker + comp_marker,
+     user_marker + user_marker + comp_marker + user_marker]
+  end
+
+  def patterns_to_ignore_two_markers(user_marker, comp_marker)
+    patt1 = patterns_to_ignore_two_markers_1(user_marker, comp_marker)
+    patt2 = patt1.map { |p| p.reverse }
+    patt3 = patterns_to_ignore_two_markers_2(user_marker, comp_marker)
+    patt4 = patt3.map { |p| p.reverse }
+    asymmetric_pattern(user_marker, comp_marker) + patt1 + patt2 + patt3 + patt4
+  end
+
+  def asymmetric_pattern(user_marker, comp_marker)
+    [user_marker + comp_marker + user_marker,
+     comp_marker + user_marker + comp_marker]
+  end
+
+  def patterns_to_ignore_two_markers_1(user_marker, comp_marker)
+    [user_marker + user_marker + comp_marker,
+     comp_marker + comp_marker + user_marker]
+  end
+
+  def patterns_to_ignore_two_markers_2(user_marker, comp_marker)
+    [user_marker + " " + user_marker + comp_marker,
+     user_marker + " " + comp_marker + user_marker,
+     user_marker + " " + comp_marker + comp_marker,
+     comp_marker + " " + user_marker + user_marker,
+     comp_marker + " " + user_marker + comp_marker,
+     comp_marker + " " + comp_marker + user_marker]
   end
 end

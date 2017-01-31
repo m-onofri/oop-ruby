@@ -1,5 +1,3 @@
-require_relative 'modules'
-
 class Score
   include Displayable
 
