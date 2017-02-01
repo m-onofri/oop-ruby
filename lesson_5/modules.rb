@@ -118,7 +118,7 @@ module PatternBoard5x5
   def patterns_to_ignore_three_markers(user_marker, comp_marker)
     patt1 = patterns_to_ignore_three_markers_1(user_marker, comp_marker)
     patterns = total_patterns_three_markers(user_marker, comp_marker)
-    rev_patterns = patterns.map { |p| p.reverse }
+    rev_patterns = patterns.map(&:reverse)
     patt1 + patterns + rev_patterns
   end
 
@@ -164,9 +164,9 @@ module PatternBoard5x5
 
   def patterns_to_ignore_two_markers(user_marker, comp_marker)
     patt1 = patterns_to_ignore_two_markers_1(user_marker, comp_marker)
-    patt2 = patt1.map { |p| p.reverse }
+    patt2 = patt1.map(&:reverse)
     patt3 = patterns_to_ignore_two_markers_2(user_marker, comp_marker)
-    patt4 = patt3.map { |p| p.reverse }
+    patt4 = patt3.map(&:reverse)
     asymmetric_pattern(user_marker, comp_marker) + patt1 + patt2 + patt3 + patt4
   end
 

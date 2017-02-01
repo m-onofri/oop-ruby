@@ -1,5 +1,3 @@
-require 'pry'
-
 class TTTGame
   include Displayable
 
@@ -46,6 +44,7 @@ class TTTGame
 
   def confirm_setup
     loop do
+      clear_screen
       prompt "These are your set_up data:"
       display_setup_resume
       prompt "Do you confirm them?(y/n)"
@@ -71,7 +70,7 @@ class TTTGame
     EIF
   end
 
-  def change_setup_data  
+  def change_setup_data
     clear_screen
     puts "What do you want to modify?"
     display_setup_resume
@@ -131,7 +130,7 @@ class RoundManager
   def initialize(params)
     @board = select_board(params[:game_variation], params[:markers])
     @human = Human.new(params[:human], board)
-    @computer = select_computer_player(params[:game_variation], params[:computer])
+    @computer = computer_player(params[:game_variation], params[:computer])
     @starting_player = params[:starting_player]
     @current_player = starting_player
     @game_score = params[:game_score]
@@ -162,17 +161,17 @@ class RoundManager
 
   private
 
-  def select_computer_player(game_variation, name)
-    case game_variation
-    when "3x3" then Computer3.new(name, board)
-    when "5x5" then Computer5.new(name, board)
-    end
-  end
-
   def select_board(game_variation, markers)
     case game_variation
     when "3x3" then Board3.new(markers)
     when "5x5" then Board5.new(markers)
+    end
+  end
+
+  def computer_player(game_variation, name)
+    case game_variation
+    when "3x3" then Computer3.new(name, board)
+    when "5x5" then Computer5.new(name, board)
     end
   end
 
@@ -184,12 +183,15 @@ class RoundManager
 
   def current_player_move
     if current_player == :human
-      player_choice = human.chose_move
-      board.squares[player_choice].marker = board.user_marker
+      player_move(human, board.user_marker)
     elsif current_player == :computer
-      player_choice = computer.chose_move
-      board.squares[player_choice].marker = board.comp_marker
+      player_move(computer, board.comp_marker)
     end
+  end
+
+  def player_move(player, player_marker)
+    player_choice = player.chose_move
+    board.squares[player_choice].marker = player_marker
   end
 
   def alternate_current_player

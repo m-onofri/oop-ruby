@@ -7,7 +7,3 @@ require_relative 'tic_tac_toe'
 
 game = TTTGame.new
 game.play
-
-
-
-

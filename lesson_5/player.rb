@@ -107,10 +107,12 @@ class Computer5 < Player
   end
 
   def three_markers_in_a_row?(marker, row)
+    user_marker = board.user_marker
+    comp_marker = board.comp_marker
     if row_array(row).count(marker) == 3
       row_string = row_array(row).join
-      patterns_to_ignore_three_markers(board.user_marker, board.comp_marker).each do |pattern|
-        return false if row_string.include?(pattern)
+      patterns_to_ignore_three_markers(user_marker, comp_marker).each do |p|
+        return false if row_string.include?(p)
       end
       true
     end
@@ -151,10 +153,12 @@ class Computer5 < Player
   end
 
   def two_markers_in_a_row?(marker, row)
+    user_marker = board.user_marker
+    comp_marker = board.comp_marker
     if row_array(row).count(marker) == 2
       row_string = row_array(row).join
-      patterns_to_ignore_two_markers(board.user_marker, board.comp_marker).each do |pattern|
-        return false if row_string.include?(pattern)
+      patterns_to_ignore_two_markers(user_marker, comp_marker).each do |p|
+        return false if row_string.include?(p)
       end
       true
     end

@@ -24,6 +24,38 @@ class SetupGame
     prompt_to_continue("Press enter to proceed in the setup of the game.")
   end
 
+  def game_variation
+    @board_type = define_game_variation
+    prompt_to_continue("Press enter to proceed in the setup of the game.")
+  end
+
+  def max_score
+    @game_score = Score.new
+    prompt_to_continue("Press enter to proceed in the setup of the game.")
+  end
+
+  def players_markers
+    set_players_markers
+    prompt_to_continue("Press enter to proceed in the setup of the game.")
+  end
+
+  def game_starting_player
+    @starting_player = coin_toss_manager
+    prompt_to_continue("Press enter to proceed in the setup of the game.")
+  end
+
+  def setup_data
+    { human: human_name,
+      computer: comp_name,
+      game_score: game_score,
+      game_variation: board_type,
+      starting_player: starting_player,
+      markers: { human: user_marker,
+                 computer: comp_marker } }
+  end
+
+  private
+
   def set_name
     user_name = ''
     prompt "Please, enter your name:"
@@ -33,11 +65,6 @@ class SetupGame
       prompt "Please enter a valid name:"
     end
     user_name
-  end
-
-  def game_variation
-    @board_type = define_game_variation
-    prompt_to_continue("Press enter to proceed in the setup of the game.")
   end
 
   def define_game_variation
@@ -55,16 +82,6 @@ class SetupGame
       else prompt "Enter 1 or 2"
       end
     end
-  end
-
-  def max_score
-    @game_score = Score.new
-    prompt_to_continue("Press enter to proceed in the setup of the game.")
-  end
-
-  def players_markers
-    set_players_markers
-    prompt_to_continue("Press enter to proceed in the setup of the game.")
   end
 
   def set_players_markers
@@ -91,20 +108,4 @@ class SetupGame
     end
     @comp_marker = symbol
   end
-
-  def game_starting_player
-    @starting_player = coin_toss_manager
-    prompt_to_continue("Press enter to proceed in the setup of the game.")
-  end
-
-  def setup_data
-    { human: human_name,
-      computer: comp_name,
-      game_score: game_score,
-      game_variation: board_type,
-      starting_player: starting_player,
-      markers: { human: user_marker,
-                 computer: comp_marker } }
-  end
 end
-

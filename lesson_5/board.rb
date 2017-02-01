@@ -1,5 +1,3 @@
-
-
 class Board
   include Displayable
 
