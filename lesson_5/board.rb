@@ -1,3 +1,7 @@
+# class Board
+# class Board3
+# class Board5
+
 class Board
   include Displayable
 

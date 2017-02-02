@@ -1,3 +1,8 @@
+# class Player
+# class Human
+# class Computer3
+# class Computer5
+
 class Player
   include Displayable
 

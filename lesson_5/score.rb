@@ -1,3 +1,5 @@
+# class Score
+
 class Score
   include Displayable
 

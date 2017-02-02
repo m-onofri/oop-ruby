@@ -1,3 +1,7 @@
+# module Displayable
+# module CoinToss
+# module PatternBoard5x5
+
 module Displayable
   def prompt(string)
     puts "==> #{string}"
