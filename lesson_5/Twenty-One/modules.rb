@@ -69,4 +69,47 @@ module Displayable
   def display_goodbye_message(game)
     prompt "Thanks for playing #{game}. Goodbye!"
   end
+
+  def game_description
+    puts <<-WELCOME
+  Welcome to #{PlayerCards::TARGET_SCORE}!
+  Here the rules of the game:
+  - in the game you will use a card deck of 52 card with 4 suits (hearts,
+    diamonds, clubs, and spades), and 13 values (2, 3, 4, 5, 6, 7, 8, 9,
+    10, jack, queen, king, ace)
+  - the card with numbers from 2 to 10 are worth their face value
+  - the jack, queen, and king cards are each worth 10 points
+  - aces can be 1 or 11 points depending on the total value of the hand; if
+    the total value is lower #{PlayerCards::TARGET_SCORE}, ace is 11 points, otherwise is 1 point.
+  - both the player will receive two cards
+  - you can see both of your cards, but only one of the other player's
+    (called dealer)
+  - depending on cards, both players may choose to hit (receive another card)
+    or stay
+  - the dealer must stay with #{DealerCards::DEALER_STAY_SCORE} or more points
+  - the player who goes over #{PlayerCards::TARGET_SCORE} busts and lose the game
+  - when both players stay, the player whose hand is closest to #{PlayerCards::TARGET_SCORE} wins
+WELCOME
+
+    prompt_to_continue("Press enter to start the game")
+  end
+
+  def display_participants_cards
+    clear_screen
+    display_cards(self.player)
+    display_cards(self.dealer)
+  end
+
+  def display_cards(participant)
+    puts "#{self.user_name.upcase}'S CARD".center(34)
+    participant.display_cards
+    puts "Current points user: #{participant.cards_value}"
+    puts "=" * 34
+  end
+
+  def display_score
+    puts "SCORE:  user => #{self.score.points[:player]}   " \
+         "dealer => #{self.score.points[:dealer]}"
+    puts "=" * 34
+  end
 end

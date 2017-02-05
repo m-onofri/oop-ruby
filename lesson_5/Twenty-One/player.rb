@@ -1,19 +1,17 @@
 require 'pry'
 require_relative 'modules'
 
-class Participant
+class ParticipantCards
   include Displayable
 
   attr_reader :deck
 
-  TARGET_SCORE = 21
-
-  def initialize(deck, _name)
+  def initialize(deck)
     @deck = deck
   end
 
   def bust?
-    cards.total_value > TARGET_SCORE
+    cards.total_value > Cards::TARGET_SCORE
   end
 
   def stay?(move)
@@ -42,16 +40,18 @@ class Participant
   def cards_list
     cards.list
   end
+
+  def beat?(opponent)
+    cards_value > opponent.cards_value
+  end
 end
 
-class Player < Participant
-  attr_reader :name
+class PlayerCards < ParticipantCards
   attr_accessor :cards
 
-  def initialize(_deck, name)
+  def initialize(_deck)
     super
     @cards = Cards.new
-    @name = name
   end
 
   def select_move
@@ -65,28 +65,27 @@ class Player < Participant
     end
   end
 
-  def initialize_game
+  def initialize_cards
     cards.calculate_total_value!
     cards.format_two_cards
   end
 end
 
-class Dealer < Participant
-  attr_reader :cards, :name
+class DealerCards < ParticipantCards
+  attr_reader :cards
 
   DEALER_STAY_SCORE = 17
 
-  def initialize(_deck, _name)
+  def initialize(_deck)
     super
     @cards = Cards.new
-    @name = "Dealer"
   end
 
   def select_move
     cards.total_value < DEALER_STAY_SCORE ? "hit" : "stay"
   end
 
-  def initialize_game
+  def initialize_cards
     cards.format_one_card
     cards.total_value = cards.single_card_value(cards.list[0])
   end
@@ -108,6 +107,26 @@ class Cards
     @total_value = 0
   end
 
+  def format_two_cards
+    card1 = format_card_details!(list[0])
+    card2 = format_card_details!(list[1])
+    self.formatted = formatting_single_card(card1[0], card1[1])
+    new_card = formatting_single_card(card2[0], card2[1])
+
+    add_formatted_card!(new_card)
+  end
+
+  def format_one_card
+    card1 = format_card_details!(list[0])
+
+    self.formatted = formatting_single_card(card1[0], card1[1])
+    hidden_card = ["   --------- ", "  |         |"] +
+                  ["  | HIDDEN  |", "  |         |"] +
+                  ["  |  CARD   |", "  |         |", "   --------- "]
+
+    add_formatted_card!(hidden_card)
+  end
+
   # card_details = [suit, value]
   def format_card_details!(card_details)
     card_details.each do |val|
@@ -127,28 +146,8 @@ class Cards
 
   def add_formatted_card!(new_card)
     formatted.each_with_index do |_, index|
-      self.formatted[index] += "    " + new_card[index]
+      formatted[index] += "    " + new_card[index]
     end
-  end
-
-  def format_two_cards
-    card_1_details = format_card_details!(list[0])
-    card_2_details = format_card_details!(list[1])
-    self.formatted = formatting_single_card(card_1_details[0], card_1_details[1])
-    new_card = formatting_single_card(card_2_details[0], card_2_details[1])
-
-    add_formatted_card!(new_card)
-  end
-
-  def format_one_card
-    card_1_details = format_card_details!(list[0])
-
-    self.formatted = formatting_single_card(card_1_details[0], card_1_details[1])
-    hidden_card = ["   --------- ", "  |         |"] +
-                  ["  | HIDDEN  |", "  |         |"] +
-                  ["  |  CARD   |", "  |         |", "   --------- "]
-
-    add_formatted_card!(hidden_card)
   end
 
   def new_formatted_card!
@@ -167,7 +166,6 @@ class Cards
     list.select { |val| val[1].strip == "A" }.count.times do
       self.total_value -= 10 if total_value > TARGET_SCORE
     end
-    #binding.pry
   end
 
   def single_card_value(card)
@@ -182,7 +180,3 @@ class Cards
     formatted.each { |line| puts line }
   end
 end
-
-
-
-
