@@ -12,6 +12,7 @@ class Score
   end
 
   def set_max_points
+    clear_screen
     max_points = nil
     prompt "Please enter how many points players have to reach to win the game:"
     loop do

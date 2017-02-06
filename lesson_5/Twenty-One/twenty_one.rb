@@ -1,7 +1,4 @@
-require_relative 'score'
-require_relative 'player'
-require_relative 'modules'
-require 'pry'
+# class TOGame
 
 class TOGame
   include Displayable
@@ -16,16 +13,41 @@ class TOGame
 
   def play
     loop do
-      initialize_game!
-      player_move = manage_moves(player)
-      player_move == "stay" ? dealer_turn : prompt_bust
-      prompt_to_continue("Press enter to continue the game")
-      break if score.reached_max_points?
+      score.set_score
+      round_game
+      declare_winner
+      break unless play_again?
     end
     display_goodbye_message("Twenty-One")
   end
 
   private
+
+  def round_game
+    loop do
+      initialize_game!
+      player_move = moves(player, user_name)
+      player_move == "stay" ? dealer_turn : bust
+      if score.reached_max_points?
+        sleep_game(4)
+        break
+      end
+      prompt_to_continue("Press enter to play the next round!")
+    end
+  end
+
+  def declare_winner
+    clear_screen
+    puts ""
+    if score.player_at_max_point == :player
+      puts "#{user_name.upcase} WON THE GAME!".center(34)
+    else
+      puts "DEALER WON THE GAME!".center(34)
+    end
+    puts ""
+    puts "=" * 34
+    display_score
+  end
 
   def set_name
     user_name = ''
@@ -54,90 +76,66 @@ class TOGame
     @dealer = DealerCards.new(deck)
   end
 
-  def manage_moves(participant)
+  def moves(participant, name)
     loop do
-      display_participants_cards
-      display_score
+      display_game_info
       move = participant.select_move
-      prompt "#{user_name.capitalize} will #{move}!"
+      prompt "#{name.capitalize} will #{move}!"
       participant.hit! if move == "hit"
-      prompt_to_continue("Press enter to continue the game")
+      sleep_game(2)
       return move if participant.stay?(move) || participant.bust?
     end
   end
 
   def dealer_turn
     dealer.initialize_turn!
-    dealer_move = manage_moves(dealer)
-    dealer_move == "stay" ? compare_cards : prompt_bust
+    dealer_move = moves(dealer, "Dealer")
+    dealer_move == "stay" ? compare_cards : bust
   end
 
   def compare_cards
-    compare_players_cards
-    update_score
+    winner = round_winner
+    display_round_result(winner)
+    score.update(winner)
   end
 
-  def compare_players_cards
-    if round_winner == :player
-      puts "USER WON!".center(34)
-    elsif round_winner == :dealer
+  def display_round_result(winner)
+    puts " "
+    if winner == :player
+      puts "#{user_name.upcase} WON!".center(34)
+    elsif winner == :dealer
       puts "DEALER WON!".center(34)
     else
       puts "IT'S A TIE!".center(34)
     end
   end
 
-  def update_score
-    if round_winner == :player
-      score.points[:player] += 1
-    elsif round_winner == :dealer
-      score.points[:dealer] += 1
-    end
+  def bust
+    winner = round_winner
+    display_game_info
+    score.update(winner)
+    display_bust(winner)
   end
 
-  def prompt_bust
-    winner = round_winner
-    display_participants_cards
-    display_score
-    score.points[winner] += 1
+  def display_bust(winner)
+    puts " "
     if winner == :player
       puts "DEALER BUST! YOU WON!".center(34)
     elsif winner == :dealer
-      puts "PLAYER BUST! DEALER WON!".center(34)
+      puts "#{user_name.upcase} BUST! DEALER WON!".center(34)
     end
+  end
+
+  def display_game_info
+    display_participants_cards
+    display_score
   end
 
   def round_winner
-    case 
-    when player.bust? then :dealer
-    when dealer.bust? then :player
-    when dealer.beat?(player) then :dealer
-    when player.beat?(dealer) then :player
-    end
+    return :dealer if player.bust?
+    return :player if dealer.bust?
+    return :dealer if dealer.beat?(player)
+    return :player if player.beat?(dealer)
+    :tie
   end
 end
-
-class Deck
-  attr_reader :cards
-
-  SUITS_SYMBOLS = %W(\u2660 \u2661 \u2662 \u2663).freeze
-
-  def initialize
-    @cards = set_cards
-  end
-
-  def set_cards
-    SUITS_SYMBOLS.each_with_object({}) do |suit, cards|
-      cards[suit] = %w(2 3 4 5 6 7 8 9 10 J Q K A)
-    end
-  end
-
-  def deal_card!(player_cards)
-    current_suit = SUITS_SYMBOLS.sample
-    current_value = cards[current_suit].sample
-    player_cards << [current_suit, current_value]
-    cards[current_suit].delete(current_value)
-  end
-end
-
-TOGame.new.play
