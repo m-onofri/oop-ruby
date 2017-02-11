@@ -16,21 +16,6 @@ module Displayable
     end
   end
 
-  def setup_title(step_num, tot_step)
-    puts "SETUP GAME - STEP #{step_num} of #{tot_step}".center(60)
-    puts
-  end
-
-  def return_yes_no_answer
-    answer = nil
-    loop do
-      answer = gets.chomp.downcase
-      break if answer == "y" || answer == "n"
-      prompt "Invalid answer; please enter y or n"
-    end
-    answer
-  end
-
   def prompt_to_continue(request)
     puts
     prompt request
@@ -44,16 +29,6 @@ module Displayable
 
   def separator(width = 50, symbol = "=")
     puts symbol * width
-  end
-
-  def join_items(array, sep = ", ", last_sep = " or ")
-    last_item = array[-1].to_s
-    final_str = array[0..-2].join(sep)
-    if array.size == 1
-      final_str << last_item
-    elsif final_str << last_sep + last_item
-    end
-    final_str
   end
 
   def play_again?
@@ -108,14 +83,14 @@ WELCOME
   def display_cards(participant, name)
     puts "#{name.upcase}'S CARDS".center(34)
     participant.display_cards
-    puts "Current points user: #{participant.cards_value}"
-    puts "=" * 34
+    puts "Current points user: #{participant.cards_value}".center(34)
+    separator(34)
   end
 
   def display_score
     puts "Score (max points = #{score.max_points})".center(34)
-    puts "user_name => #{score.points[:player]}   " \
-         "dealer => #{score.points[:dealer]}".center(34)
-    puts "=" * 34
+    puts "#{user_name} => #{score.points[:player]}   " \
+         "Dealer => #{score.points[:dealer]}".center(34)
+    separator(34)
   end
 end

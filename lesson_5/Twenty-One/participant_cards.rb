@@ -22,8 +22,8 @@ class ParticipantCards
 
   def hit!
     deck.deal_card!(cards.list)
-    cards.new_formatted_card!
-    cards.calculate_total_value!
+    cards.new_formatted_card
+    cards.calculate_total_value
   end
 
   def reset_game
@@ -51,8 +51,8 @@ end
 class PlayerCards < ParticipantCards
   attr_accessor :cards
 
-  def initialize(_deck)
-    super
+  def initialize(deck)
+    super(deck)
     @cards = Cards.new
   end
 
@@ -68,7 +68,7 @@ class PlayerCards < ParticipantCards
   end
 
   def initialize_cards
-    cards.calculate_total_value!
+    cards.calculate_total_value
     cards.format_two_cards
   end
 end
@@ -78,8 +78,8 @@ class DealerCards < ParticipantCards
 
   DEALER_STAY_SCORE = 17
 
-  def initialize(_deck)
-    super
+  def initialize(deck)
+    super(deck)
     @cards = Cards.new
   end
 
@@ -92,7 +92,7 @@ class DealerCards < ParticipantCards
     cards.total_value = cards.single_card_value(cards.list[0])
   end
 
-  def initialize_turn!
+  def initialize_turn
     cards.format_two_cards
     cards.total_value += cards.single_card_value(cards.list[1])
   end
@@ -115,7 +115,7 @@ class Cards
     self.formatted = formatting_single_card(card1[0], card1[1])
     new_card = formatting_single_card(card2[0], card2[1])
 
-    add_formatted_card!(new_card)
+    add_formatted_card(new_card)
   end
 
   def format_one_card
@@ -126,7 +126,7 @@ class Cards
                   ["  | HIDDEN  |", "  |         |"] +
                   ["  |  CARD   |", "  |         |", "   --------- "]
 
-    add_formatted_card!(hidden_card)
+    add_formatted_card(hidden_card)
   end
 
   # card_details = [suit, value]
@@ -146,21 +146,21 @@ class Cards
       ["   --------- "]
   end
 
-  def add_formatted_card!(new_card)
+  def add_formatted_card(new_card)
     formatted.each_with_index do |_, index|
       formatted[index] += "    " + new_card[index]
     end
   end
 
-  def new_formatted_card!
+  def new_formatted_card
     new_card = list.last
     new_card_details = format_card_details!(new_card)
 
     last_card = formatting_single_card(new_card_details[0], new_card_details[1])
-    add_formatted_card!(last_card)
+    add_formatted_card(last_card)
   end
 
-  def calculate_total_value!
+  def calculate_total_value
     self.total_value = 0
     list.each do |card|
       self.total_value += single_card_value(card)

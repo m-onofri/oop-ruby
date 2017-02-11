@@ -88,7 +88,7 @@ class TOGame
   end
 
   def dealer_turn
-    dealer.initialize_turn!
+    dealer.initialize_turn
     dealer_move = moves(dealer, "Dealer")
     dealer_move == "stay" ? compare_cards : bust
   end
