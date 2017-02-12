@@ -61,7 +61,7 @@ class TOGame
   end
 
   def initialize_game!
-    initialize_variables
+    initialize_deck_and_participant_hands
     2.times do
       deck.deal_card!(player.cards_list)
       deck.deal_card!(dealer.cards_list)
@@ -70,7 +70,7 @@ class TOGame
     dealer.initialize_cards
   end
 
-  def initialize_variables
+  def initialize_deck_and_participant_hands
     @deck = Deck.new
     @player = PlayerCards.new(deck)
     @dealer = DealerCards.new(deck)

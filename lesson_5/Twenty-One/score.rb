@@ -29,9 +29,7 @@ class Score
   end
 
   def update(winner)
-    unless winner == :tie
-      points[winner] += 1
-    end
+    points[winner] += 1 unless winner == :tie
   end
 
   def integer?(string)
@@ -43,8 +41,6 @@ class Score
   end
 
   def player_at_max_point
-    if reached_max_points?
-      points.key(max_points)
-    end
+    points.key(max_points) if reached_max_points?
   end
 end
